@@ -24,8 +24,8 @@ class SingleLayerPerceptronTest {
                         inputPartie, 1.
                 ),
                 -1.,
-                new Sigmoid()
-        );
+                new Sigmoid(),
+                true);
     }
 
     @Test
@@ -33,13 +33,13 @@ class SingleLayerPerceptronTest {
          inputFriend.setValue(1.);
          inputVodka.setValue(1.);
          inputPartie.setValue(1.);
-         assertTrue(outputNeuron.call() > .8);
+         assertTrue(outputNeuron.call() > .7);
          outputNeuron.invalidate();
 
          inputFriend.setValue(0.);
          inputVodka.setValue(0.);
          inputPartie.setValue(0.);
-         assertTrue(outputNeuron.call() < .2);
+         assertTrue(outputNeuron.call() < .3);
     }
 
     @Test
@@ -47,7 +47,7 @@ class SingleLayerPerceptronTest {
         inputFriend.setValue(1.);
         inputVodka.setValue(1.);
         inputPartie.setValue(1.);
-        assertTrue(outputNeuron.call() > .8);
+        assertTrue(outputNeuron.call() > .7);
     }
 
     @Test
@@ -55,7 +55,7 @@ class SingleLayerPerceptronTest {
         inputFriend.setValue(0.);
         inputVodka.setValue(0.);
         inputPartie.setValue(0.);
-        assertTrue(outputNeuron.call() < .2);
+        assertTrue(outputNeuron.call() < .3);
     }
 
     @Test

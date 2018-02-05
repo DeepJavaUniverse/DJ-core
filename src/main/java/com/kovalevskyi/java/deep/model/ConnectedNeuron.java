@@ -1,10 +1,11 @@
 package com.kovalevskyi.java.deep.model;
 
+import com.kovalevskyi.java.deep.model.activation.ActivationFunction;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
-import java.util.function.Function;
 
 public class ConnectedNeuron implements Neuron {
 
@@ -16,24 +17,31 @@ public class ConnectedNeuron implements Neuron {
 
     private final double bias;
 
-    private final Function<Double, Double> activationFunction;
+    private final ActivationFunction activationFunction;
 
-    private volatile double result;
+    private final boolean learning;
+
+    private volatile double forwardResult;
+
+    private volatile double backwardResult;
 
     private volatile boolean calculated;
 
     public ConnectedNeuron(final Map<Neuron, Double> backwardConnections,
-                           final double bias, final Function<Double, Double> activationFunction) {
+                           final double bias,
+                           final ActivationFunction activationFunction,
+                           final boolean learning) {
         
         this.backwardConnections = backwardConnections;
         this.bias = bias;
         this.activationFunction = activationFunction;
+        this.learning = learning;
     }
 
     @Override
     public Double call() throws Exception {
         if (calculated){
-            return result;
+            return forwardResult;
         }
         double connectionsProcessingResult = backwardConnections
                 .entrySet()
@@ -46,10 +54,13 @@ public class ConnectedNeuron implements Neuron {
                         throw new RuntimeException("Neuron processing exception", e);
                     }
                 }).mapToDouble(res -> res.getKey() * res.getValue())
-                .sum();
-        result = activationFunction.apply(connectionsProcessingResult + bias);
+                .sum() + bias;
+        forwardResult = activationFunction.forward(connectionsProcessingResult);
+        if (learning) {
+             backwardResult = activationFunction.backward(connectionsProcessingResult);
+        }
         calculated = true;
-        return result;
+        return forwardResult;
     }
 
     @Override
