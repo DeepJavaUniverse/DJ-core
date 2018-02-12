@@ -1,5 +1,6 @@
 package com.kovalevskyi.java.deep.model;
 
+import com.kovalevskyi.java.deep.model.graph.InputNeuron;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,6 +12,6 @@ class InputNeuronTest {
         InputNeuron neuron = new InputNeuron();
         neuron.setValue(1.);
 
-        assertEquals((Double) 1., neuron.call());
+        assertEquals((Double) 1., neuron.calculateForward());
     }
 }
