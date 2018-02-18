@@ -8,13 +8,7 @@ public interface Neuron {
 
     Set<Neuron> backwardConnections();
 
-    Boolean forwardCalculated();
-
-    Double forwardResult();
-
-    Boolean canBeCalculatedForward();
-
-    Double calculateForward();
+    void forwardSignalReceived(Neuron from, Double value);
 
     void addForwardConnection(Neuron neuron);
 

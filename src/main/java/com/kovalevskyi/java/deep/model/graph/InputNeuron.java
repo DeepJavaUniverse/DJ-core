@@ -1,16 +1,11 @@
 package com.kovalevskyi.java.deep.model.graph;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class InputNeuron implements Neuron {
 
-    private Set<Neuron> connections;
-
-    private Double value;
-
-    public void setValue(final Double value) {
-        this.value = value;
-    }
+    private Set<Neuron> connections = new HashSet<>();
 
     @Override
     public void forwardInvalidate() { } // No-op
@@ -21,23 +16,8 @@ public class InputNeuron implements Neuron {
     }
 
     @Override
-    public Boolean forwardCalculated() {
-        return true;
-    }
-
-    @Override
-    public Double forwardResult() {
-        return value;
-    }
-
-    @Override
-    public Boolean canBeCalculatedForward() {
-        return true;
-    }
-
-    @Override
-    public Double calculateForward() {
-        return value;
+    public void forwardSignalReceived(final Neuron from, final Double value) {
+        connections.forEach(n -> n.forwardSignalReceived(this, value));
     }
 
     @Override
