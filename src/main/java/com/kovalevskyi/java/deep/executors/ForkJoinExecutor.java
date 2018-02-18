@@ -2,9 +2,7 @@ package com.kovalevskyi.java.deep.executors;
 
 import com.kovalevskyi.java.deep.model.graph.Neuron;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -14,7 +12,10 @@ public class ForkJoinExecutor implements GraphExecutor<Double> {
 
     @Override
     public List<Double> execute(final List<Neuron> neurons) {
-        neurons.stream().map(ExecutionTask::new).forEach(FORK_JOIN_POOL::execute);
+        neurons.stream().map(ExecutionTask::new).map(task -> {
+            FORK_JOIN_POOL.execute(task);
+            return task;
+        }).forEach(ForkJoinTask::join);
         return neurons.stream().map(Neuron::forwardResult).collect(Collectors.toList());
     }
 
@@ -28,7 +29,7 @@ public class ForkJoinExecutor implements GraphExecutor<Double> {
 
         @Override
         protected void compute() {
-            if (neuronToCalculate.calculated()) {
+            if (neuronToCalculate.forwardCalculated()) {
                 neuronToCalculate.forwardResult();
                 return;
             }

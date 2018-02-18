@@ -13,7 +13,7 @@ public class InputNeuron implements Neuron {
     }
 
     @Override
-    public void invalidate() { } // No-op
+    public void forwardInvalidate() { } // No-op
 
     @Override
     public Set<Neuron> backwardConnections() {
@@ -21,7 +21,7 @@ public class InputNeuron implements Neuron {
     }
 
     @Override
-    public Boolean calculated() {
+    public Boolean forwardCalculated() {
         return true;
     }
 

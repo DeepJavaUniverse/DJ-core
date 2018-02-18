@@ -4,11 +4,11 @@ import java.util.Set;
 
 public interface Neuron {
 
-    void invalidate();
+    void forwardInvalidate();
 
     Set<Neuron> backwardConnections();
 
-    Boolean calculated();
+    Boolean forwardCalculated();
 
     Double forwardResult();
 

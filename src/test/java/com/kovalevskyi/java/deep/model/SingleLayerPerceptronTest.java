@@ -17,13 +17,16 @@ import static org.junit.jupiter.api.Assertions.*;
 class SingleLayerPerceptronTest {
 
     private Neuron outputNeuron;
-    private InputNeuron inputFriend = new InputNeuron();
-    private InputNeuron inputVodka = new InputNeuron();
-    private InputNeuron inputParty = new InputNeuron();
+    private InputNeuron inputFriend;
+    private InputNeuron inputVodka;
+    private InputNeuron inputParty;
     private GraphExecutor<Double> graphExecutor;
 
     @BeforeEach
     void setUp() {
+        inputFriend = new InputNeuron();
+        inputVodka = new InputNeuron();
+        inputParty = new InputNeuron();
         outputNeuron = new ConnectedNeuron(
                 Map.of(
                         inputFriend, 1.,
@@ -42,7 +45,7 @@ class SingleLayerPerceptronTest {
          inputParty.setValue(1.);
          graphExecutor.execute(List.of(outputNeuron));
          assertTrue(outputNeuron.calculateForward() > .7);
-         outputNeuron.invalidate();
+         outputNeuron.forwardInvalidate();
 
          inputFriend.setValue(0.);
          inputVodka.setValue(0.);

@@ -5,8 +5,6 @@ import com.kovalevskyi.java.deep.model.activation.ActivationFunction;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
-import java.util.function.Function;
 
 public class ConnectedNeuron implements Neuron {
 
@@ -20,7 +18,7 @@ public class ConnectedNeuron implements Neuron {
 
     private volatile double forwardResult;
 
-    private volatile boolean calculated;
+    private volatile boolean forwardCalculated;
 
     public ConnectedNeuron(final Map<Neuron, Double> backwardConnections,
                            final double bias,
@@ -31,35 +29,13 @@ public class ConnectedNeuron implements Neuron {
         this.activationFunction = activationFunction;
     }
 
-//    @Override
-//    public Double call() throws Exception {
-//        if (calculated){
-//            return forwardResult;
-//        }
-//        double connectionsProcessingResult = backwardConnections
-//                .entrySet()
-//                .stream()
-//                .map(connection -> Map.entry(FORK_JOIN_POOL.submit(connection.getKey()), connection.getValue()))
-//                .map(task -> {
-//                    try {
-//                        return Map.entry(task.getKey().get(), task.getValue());
-//                    } catch (Exception e) {
-//                        throw new RuntimeException("Neuron processing exception", e);
-//                    }
-//                }).mapToDouble(res -> res.getKey() * res.getValue())
-//                .sum() + bias;
-//        forwardResult = activationFunction.forward(connectionsProcessingResult);
-//        if (learning) {
-//             backwardResult = activationFunction.backward(connectionsProcessingResult);
-//        }
-//        calculated = true;
-//        return forwardResult;
-//    }
 
     @Override
-    public void invalidate() {
-        calculated = false;
-        backwardConnections.keySet().forEach(Neuron::invalidate);
+    public void forwardInvalidate() {
+        if (forwardCalculated) {
+            forwardCalculated = false;
+            backwardConnections.keySet().forEach(Neuron::forwardInvalidate);
+        }
     }
 
     @Override
@@ -68,35 +44,35 @@ public class ConnectedNeuron implements Neuron {
     }
 
     @Override
-    public Boolean calculated() {
-        return calculated;
+    public Boolean forwardCalculated() {
+        return forwardCalculated;
     }
 
     @Override
     public Double forwardResult() {
-        if (!calculated) {
-            throw new RuntimeException("Not yet calculated");
+        if (!forwardCalculated) {
+            throw new RuntimeException("Not yet forwardCalculated");
         }
         return forwardResult;
     }
 
     @Override
     public Boolean canBeCalculatedForward() {
-        return !backwardConnections.keySet().stream().filter(n -> !n.calculated()).findAny().isPresent();
+        return !backwardConnections.keySet().stream().filter(n -> !n.forwardCalculated()).findAny().isPresent();
     }
 
     @Override
     public Double calculateForward() {
-        if (calculated) {
+        if (forwardCalculated) {
             return forwardResult;
         }
         if (backwardConnections
                 .keySet()
                 .stream()
-                .map(Neuron::calculated)
+                .map(Neuron::forwardCalculated)
                 .<Boolean, Boolean>filter(calculated -> !calculated)
                 .count() > 0) {
-           throw new RuntimeException("Not all neurons are calculated!");
+           throw new RuntimeException("Not all neurons are forwardCalculated!");
         }
         forwardResult = backwardConnections
                 .entrySet()
@@ -104,7 +80,7 @@ public class ConnectedNeuron implements Neuron {
                 .mapToDouble(connection -> connection.getKey().forwardResult() * connection.getValue())
                 .sum() + bias;
         forwardResult = activationFunction.forward(forwardResult);
-        calculated = true;
+        forwardCalculated = true;
         return forwardResult;
     }
 
