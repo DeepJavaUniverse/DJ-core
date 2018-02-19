@@ -7,9 +7,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 
 public class ConnectedNeuron implements Neuron {
+
+    private final ActivationFunction activationFunction;
 
     private final ForkJoinPool forkJoinPool;
 
@@ -17,19 +20,19 @@ public class ConnectedNeuron implements Neuron {
 
     private final Set<Neuron> forwardConnections = new HashSet<>();
 
-    private double bias;
+    private final double learningRate;
 
-    private final ActivationFunction activationFunction;
+    private final String name;
 
-    private volatile Map<Neuron, Double> inputSignals = new ConcurrentHashMap<>();
+    private final Map<Neuron, Double> inputSignals = new ConcurrentHashMap<>();
+
+    private volatile double bias;
 
     private volatile boolean forwardCalculated;
 
     private volatile double forwardResult;
 
-    private final double learningRate;
-
-    private final String name;
+    private volatile double forwardInputToActivationFunction;
 
     public ConnectedNeuron(final Map<Neuron, Double> backwardConnections,
                            final double bias,
@@ -79,27 +82,37 @@ public class ConnectedNeuron implements Neuron {
 
     @Override
     public void forwardSignalReceived(final Neuron from, final Double value) {
+        if (!inputSignals.containsKey(from)) {
+            throw new RuntimeException(
+                    String.format("Neuron %s is not connected", from));
+        }
         inputSignals.put(from, value);
-        Long notNullCount = inputSignals.values().stream().filter(v -> v != Double.NaN).count();
-        if (notNullCount == inputSignals.keySet().size()) {
-            double signalToSend = activationFunction.forward(backwardConnections
-                    .entrySet()
-                    .stream()
-                    .mapToDouble(connection -> inputSignals.get(connection.getKey()) * connection.getValue())
-                    .sum() + bias);
+        if (isAllSignalsReceived()) {
+            forwardInputToActivationFunction
+                    = backwardConnections
+                        .entrySet()
+                        .stream()
+                        .mapToDouble(connection ->
+                                inputSignals.get(connection.getKey())
+                                        * connection.getValue())
+                        .sum() + bias;
+            double signalToSend = activationFunction.forward(forwardInputToActivationFunction);
             forwardResult = signalToSend;
             forwardCalculated = true;
-            forwardConnections.stream().map(c ->
-                new RecursiveAction() {
-                    @Override
-                    protected void compute() {
-                      c.forwardSignalReceived(ConnectedNeuron.this, signalToSend);
-                    }
-                }
-            ).map(action -> {
-                forkJoinPool.submit(action);
-                return action;
-            }).forEach(RecursiveAction::join);
+            forwardConnections
+                    .stream()
+                    .map(connection ->
+                        new RecursiveAction() {
+                            @Override
+                            protected void compute() {
+                              connection
+                                      .forwardSignalReceived(
+                                              ConnectedNeuron.this,
+                                              signalToSend);
+                            }
+                        }
+                    ).map(forkJoinPool::submit)
+                    .forEach(ForkJoinTask::join);
         }
     }
 
@@ -108,26 +121,30 @@ public class ConnectedNeuron implements Neuron {
         if (!forwardCalculated) {
             throw new RuntimeException("Forward calculation is not yet completed");
         }
-        double backwardDiff = activationFunction.backward(forwardResult);
-        double dz = backwardDiff * error;
+        double derivative = activationFunction.backward(forwardInputToActivationFunction);
+        double dz = derivative * error;
         backwardConnections.keySet().forEach(conn -> {
             double weight = backwardConnections.get(conn);
             weight = weight + inputSignals.get(conn) * dz * learningRate;
+            // TODO(issues/7): such weight update is not Thread safe.
             backwardConnections.put(conn, weight);
         });
+        // TODO(issues/8): implement cashing for the average for inputSignals
         double average = inputSignals.values().stream().mapToDouble(w -> w).average().getAsDouble();
+        // TODO(issues/9): bias update is not Thread safe.
         bias = bias + average * dz * learningRate;
-        backwardConnections.keySet().stream().map(conn ->
-            new RecursiveAction() {
-                @Override
-                protected void compute() {
-                    conn.backwardSignalReceived(backwardConnections.get(conn) * dz);
-                }
-            }
-        ).map(action -> {
-            forkJoinPool.submit(action);
-            return action;
-        }).forEach(RecursiveAction::join);
+        backwardConnections
+                .keySet()
+                .stream()
+                .map(conn ->
+                    new RecursiveAction() {
+                        @Override
+                        protected void compute() {
+                            conn.backwardSignalReceived(backwardConnections.get(conn) * dz);
+                        }
+                    }
+                ).map(forkJoinPool::submit)
+                .forEach(ForkJoinTask::join);
     }
 
     @Override
@@ -156,5 +173,15 @@ public class ConnectedNeuron implements Neuron {
             return name;
         }
         return super.toString();
+    }
+
+    private boolean isAllSignalsReceived() {
+        Long notNullCount
+                = inputSignals
+                    .values()
+                    .stream()
+                    .filter(v -> v != Double.NaN)
+                    .count();
+        return notNullCount == inputSignals.keySet().size();
     }
 }
