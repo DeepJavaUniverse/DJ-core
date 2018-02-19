@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
+import java.util.function.Function;
 
 public class ConnectedNeuron implements Neuron {
 
@@ -31,6 +32,8 @@ public class ConnectedNeuron implements Neuron {
     private volatile boolean forwardCalculated;
 
     private volatile double forwardResult;
+
+    private volatile double inputSignalsAverage;
 
     private volatile double forwardInputToActivationFunction;
 
@@ -115,6 +118,13 @@ public class ConnectedNeuron implements Neuron {
                         }
                     ).map(forkJoinPool::submit)
                     .forEach(ForkJoinTask::join);
+            inputSignalsAverage
+                    = inputSignals
+                        .values()
+                        .stream()
+                        .mapToDouble(v -> v)
+                        .average()
+                        .getAsDouble();
         }
     }
 
@@ -131,10 +141,8 @@ public class ConnectedNeuron implements Neuron {
             backwardConnections.compute(conn, (k, weight) ->
                weight + inputSignals.get(conn) * dz * learningRate
             ));
-        // TODO(issues/8): implement cashing for the average for inputSignals
-        double average = inputSignals.values().stream().mapToDouble(w -> w).average().getAsDouble();
         // TODO(issues/9): bias update is not Thread safe.
-        bias = bias + average * dz * learningRate;
+        bias = bias + inputSignalsAverage * dz * learningRate;
         backwardConnections
                 .keySet()
                 .stream()
