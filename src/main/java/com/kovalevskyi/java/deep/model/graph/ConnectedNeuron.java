@@ -16,7 +16,7 @@ public class ConnectedNeuron implements Neuron {
 
     private final ForkJoinPool forkJoinPool;
 
-    private final Map<Neuron, Double> backwardConnections;
+    private final ConcurrentHashMap<Neuron, Double> backwardConnections;
 
     private final Set<Neuron> forwardConnections = new HashSet<>();
 
@@ -127,12 +127,10 @@ public class ConnectedNeuron implements Neuron {
                 = activationFunction.backward(
                         forwardInputToActivationFunction);
         double dz = derivative * error;
-        backwardConnections.keySet().forEach(conn -> {
-            double weight = backwardConnections.get(conn);
-            weight = weight + inputSignals.get(conn) * dz * learningRate;
-            // TODO(issues/7): such weight update is not Thread safe.
-            backwardConnections.put(conn, weight);
-        });
+        backwardConnections.keySet().forEach(conn ->
+            backwardConnections.compute(conn, (k, weight) ->
+               weight + inputSignals.get(conn) * dz * learningRate
+            ));
         // TODO(issues/8): implement cashing for the average for inputSignals
         double average = inputSignals.values().stream().mapToDouble(w -> w).average().getAsDouble();
         // TODO(issues/9): bias update is not Thread safe.
