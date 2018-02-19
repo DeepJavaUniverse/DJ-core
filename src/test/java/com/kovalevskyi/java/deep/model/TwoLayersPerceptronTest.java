@@ -27,7 +27,7 @@ class TwoLayersPerceptronTest {
     void setUp() {
         forkJoinPool = new ForkJoinPool();
         Random random = new Random();
-        double learningRate = 0.5;
+        double learningRate = 0.2;
         inputFriend = new InputNeuron("friend");
         inputVodka = new InputNeuron("vodka");
         inputSunny = new InputNeuron("sunny");
@@ -135,9 +135,8 @@ class TwoLayersPerceptronTest {
             Thread.sleep(5);
         }
         double actualResult = outputNeuron.getForwardResult();
-        double dA = expectedResult - actualResult;
-        dA = dA * dA * dA;
-        outputNeuron.backwardSignalReceived(dA);
+        double errorDy = 2 * (expectedResult - actualResult);
+        outputNeuron.backwardSignalReceived(errorDy);
         while (forkJoinPool.getActiveThreadCount() > 0) {
             Thread.sleep(5);
         }
