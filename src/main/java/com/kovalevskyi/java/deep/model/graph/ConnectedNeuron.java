@@ -8,11 +8,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
-import java.util.function.Function;
 
 public class ConnectedNeuron implements Neuron {
 
-    private static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool();
+    private final ForkJoinPool forkJoinPool;
 
     private final Map<Neuron, Double> backwardConnections;
 
@@ -35,16 +34,23 @@ public class ConnectedNeuron implements Neuron {
     public ConnectedNeuron(final Map<Neuron, Double> backwardConnections,
                            final double bias,
                            final ActivationFunction activationFunction,
-                           final double learningRate) {
-        this(backwardConnections, bias, activationFunction, learningRate, null);
+                           final double learningRate,
+                           final ForkJoinPool forkJoinPool) {
+        this(backwardConnections,
+                bias,
+                activationFunction,
+                learningRate,
+                null,
+                forkJoinPool);
     }
 
     public ConnectedNeuron(final Map<Neuron, Double> backwardConnections,
                            final double bias,
                            final ActivationFunction activationFunction,
                            final double learningRate,
-                           final String name) {
-
+                           final String name,
+                           final ForkJoinPool forkJoinPool) {
+        this.forkJoinPool = forkJoinPool;
         this.backwardConnections = new ConcurrentHashMap<>(backwardConnections);
         this.learningRate = learningRate;
         backwardConnections.keySet().forEach(n -> inputSignals.put(n, Double.NaN));
@@ -74,23 +80,28 @@ public class ConnectedNeuron implements Neuron {
 
     @Override
     public void forwardSignalReceived(final Neuron from, final Double value) {
-        FORK_JOIN_POOL.submit(new RecursiveAction() {
-            @Override
-            protected void compute() {
-                inputSignals.put(from, value);
-                Long notNullCount = inputSignals.values().stream().filter(v -> v != Double.NaN).count();
-                if (notNullCount == inputSignals.keySet().size()) {
-                    double signalToSend = activationFunction.forward(backwardConnections
-                            .entrySet()
-                            .stream()
-                            .mapToDouble(connection -> inputSignals.get(connection.getKey()) * connection.getValue())
-                            .sum() + bias);
-                    forwardResult = signalToSend;
-                    forwardCalculated = true;
-                    forwardConnections.forEach(c -> c.forwardSignalReceived(ConnectedNeuron.this, signalToSend));
+        inputSignals.put(from, value);
+        Long notNullCount = inputSignals.values().stream().filter(v -> v != Double.NaN).count();
+        if (notNullCount == inputSignals.keySet().size()) {
+            double signalToSend = activationFunction.forward(backwardConnections
+                    .entrySet()
+                    .stream()
+                    .mapToDouble(connection -> inputSignals.get(connection.getKey()) * connection.getValue())
+                    .sum() + bias);
+            forwardResult = signalToSend;
+            forwardCalculated = true;
+            forwardConnections.stream().map(c ->
+                new RecursiveAction() {
+                    @Override
+                    protected void compute() {
+                      c.forwardSignalReceived(ConnectedNeuron.this, signalToSend);
+                    }
                 }
-            }
-        });
+            ).map(action -> {
+                forkJoinPool.submit(action);
+                return action;
+            }).forEach(RecursiveAction::join);
+        }
     }
 
     @Override
@@ -107,14 +118,17 @@ public class ConnectedNeuron implements Neuron {
         });
         double average = inputSignals.values().stream().mapToDouble(w -> w).average().getAsDouble();
         bias = bias + average * dz * learningRate;
-        FORK_JOIN_POOL.submit(new RecursiveAction() {
-            @Override
-            protected void compute() {
-               backwardConnections.keySet().forEach(conn -> {
-                   conn.backwardSignalReceived(backwardConnections.get(conn) * dz);
-               });
+        backwardConnections.keySet().stream().map(conn ->
+            new RecursiveAction() {
+                @Override
+                protected void compute() {
+                    conn.backwardSignalReceived(backwardConnections.get(conn) * dz);
+                }
             }
-        });
+        ).map(action -> {
+            forkJoinPool.submit(action);
+            return action;
+        }).forEach(RecursiveAction::join);
     }
 
     @Override

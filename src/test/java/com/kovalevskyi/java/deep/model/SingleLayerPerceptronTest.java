@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ForkJoinPool;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,12 +18,14 @@ class SingleLayerPerceptronTest {
     private InputNeuron inputFriend;
     private InputNeuron inputVodka;
     private InputNeuron inputParty;
+    private ForkJoinPool forkJoinPool;
 
     @BeforeEach
     void setUp() {
         inputFriend = new InputNeuron("friend");
         inputVodka = new InputNeuron("vodka");
         inputParty = new InputNeuron("party");
+        forkJoinPool = new ForkJoinPool();
     }
 
     @Test
@@ -37,14 +40,12 @@ class SingleLayerPerceptronTest {
         inputFriend.forwardSignalReceived(null, 1.);
         inputVodka.forwardSignalReceived(null, 1.);
         inputParty.forwardSignalReceived(null, 1.);
-        Thread.sleep(500);
         assertTrue(outputNeuron.getForwardResult() > .7);
         outputNeuron.forwardInvalidate();
 
         inputFriend.forwardSignalReceived(null, 0.);
         inputVodka.forwardSignalReceived(null, 0.);
         inputParty.forwardSignalReceived(null, 0.);
-        Thread.sleep(500);
         assertTrue(outputNeuron.getForwardResult() < .3);
     }
 
@@ -60,7 +61,6 @@ class SingleLayerPerceptronTest {
         inputFriend.forwardSignalReceived(null, 1.);
         inputVodka.forwardSignalReceived(null, 1.);
         inputParty.forwardSignalReceived(null, 1.);
-        Thread.sleep(500);
         assertTrue(outputNeuron.getForwardResult() > .7);
     }
 
@@ -76,7 +76,6 @@ class SingleLayerPerceptronTest {
         inputFriend.forwardSignalReceived(null, 0.);
         inputVodka.forwardSignalReceived(null, 0.);
         inputParty.forwardSignalReceived(null, 0.);
-        Thread.sleep(500);
         assertTrue(outputNeuron.getForwardResult() < .3);
     }
 
@@ -92,7 +91,6 @@ class SingleLayerPerceptronTest {
         inputFriend.forwardSignalReceived(null, 1.);
         inputVodka.forwardSignalReceived(null, 0.);
         inputParty.forwardSignalReceived(null, 1.);
-        Thread.sleep(500);
         assertTrue(outputNeuron.getForwardResult() > .5);
     }
 
@@ -108,7 +106,6 @@ class SingleLayerPerceptronTest {
         inputFriend.forwardSignalReceived(null,0.);
         inputVodka.forwardSignalReceived(null,0.);
         inputParty.forwardSignalReceived(null,1.);
-        Thread.sleep(500);
         assertTrue(outputNeuron.getForwardResult() <= .5);
     }
 
@@ -178,13 +175,17 @@ class SingleLayerPerceptronTest {
         inputFriend.forwardSignalReceived(null, friendInput);
         inputVodka.forwardSignalReceived(null, vodkaInput);
         inputParty.forwardSignalReceived(null, partyInput);
-        Thread.sleep(10);
+        while (forkJoinPool.getActiveThreadCount() > 0) {
+            Thread.sleep(5);
+        }
         double actualResult = outputNeuron.getForwardResult();
         double dA = expectedResult - actualResult;
         dA = dA * dA * dA;
         outputNeuron.backwardSignalReceived(dA);
-        Thread.sleep(10);
-//        System.out.printf("TMP ERROR: %sd \n", dA / dA / dA);
+        while (forkJoinPool.getActiveThreadCount() > 0) {
+            Thread.sleep(5);
+        }
+        outputNeuron.forwardInvalidate();
         return expectedResult - actualResult;
     }
 
@@ -199,9 +200,10 @@ class SingleLayerPerceptronTest {
                         inputVodka, wVodka,
                         inputParty, wParty
                 ),
-                -1.,
+                bias,
                 new Sigmoid(),
-                learningRate);
+                learningRate,
+                forkJoinPool);
         inputFriend.addForwardConnection(outputNeuron);
         inputVodka.addForwardConnection(outputNeuron);
         inputParty.addForwardConnection(outputNeuron);
