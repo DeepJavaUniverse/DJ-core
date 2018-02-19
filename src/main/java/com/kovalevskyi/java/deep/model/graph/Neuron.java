@@ -1,5 +1,6 @@
 package com.kovalevskyi.java.deep.model.graph;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface Neuron {
@@ -10,8 +11,14 @@ public interface Neuron {
 
     void forwardSignalReceived(Neuron from, Double value);
 
+    void backwardSignalReceived(Double value);
+
     void addForwardConnection(Neuron neuron);
 
     void addBackwardConnection(Neuron neuron, Double weight);
+
+    Map<Neuron, Double> getBackwardConnections();
+
+    double getBias();
 
 }

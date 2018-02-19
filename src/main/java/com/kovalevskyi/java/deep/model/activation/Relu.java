@@ -10,6 +10,11 @@ public class Relu implements ActivationFunction {
     }
 
     @Override
+    public void invalidate() {
+        // No-op
+    }
+
+    @Override
     public Double backward(final Double x) {
         return x > 0. ? 1. : 0.;
     }

@@ -9,7 +9,12 @@ public class Sigmoid implements ActivationFunction {
     }
 
     @Override
+    public synchronized void invalidate() {
+        // noop
+    }
+
+    @Override
     public Double backward(final Double x) {
-        return x * (1 - x);
+        return forward(x) * (1 - forward(x));
     }
 }
