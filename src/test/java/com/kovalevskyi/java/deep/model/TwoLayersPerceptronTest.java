@@ -75,8 +75,9 @@ class TwoLayersPerceptronTest {
 
     @Test
     void testTraining() throws Exception {
+        double error = .0;
         for (int i = 0; i < 1000; i++) {
-            double error =
+            error =
                     trainIteration(
                             1.,
                             1.,
@@ -120,6 +121,7 @@ class TwoLayersPerceptronTest {
             error = error / 8.;
             System.out.printf("ERROR: %s \n", error);
         }
+        assertTrue(Math.abs(error) < 0.1);
     }
 
     private double trainIteration(double friendInput,

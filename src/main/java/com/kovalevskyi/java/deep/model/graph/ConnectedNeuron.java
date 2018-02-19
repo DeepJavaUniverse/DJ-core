@@ -96,7 +96,9 @@ public class ConnectedNeuron implements Neuron {
                                 inputSignals.get(connection.getKey())
                                         * connection.getValue())
                         .sum() + bias;
-            double signalToSend = activationFunction.forward(forwardInputToActivationFunction);
+            double signalToSend
+                    = activationFunction.forward(
+                            forwardInputToActivationFunction);
             forwardResult = signalToSend;
             forwardCalculated = true;
             forwardConnections
@@ -121,7 +123,9 @@ public class ConnectedNeuron implements Neuron {
         if (!forwardCalculated) {
             throw new RuntimeException("Forward calculation is not yet completed");
         }
-        double derivative = activationFunction.backward(forwardInputToActivationFunction);
+        double derivative
+                = activationFunction.backward(
+                        forwardInputToActivationFunction);
         double dz = derivative * error;
         backwardConnections.keySet().forEach(conn -> {
             double weight = backwardConnections.get(conn);
