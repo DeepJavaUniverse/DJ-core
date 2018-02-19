@@ -66,7 +66,6 @@ public class ConnectedNeuron implements Neuron {
     @Override
     public void forwardInvalidate() {
         if (forwardCalculated) {
-            activationFunction.invalidate();
             forwardCalculated = false;
             inputSignals.forEach((in, v) -> inputSignals.put(in, Double.NaN));
             backwardConnections.keySet().forEach(Neuron::forwardInvalidate);
