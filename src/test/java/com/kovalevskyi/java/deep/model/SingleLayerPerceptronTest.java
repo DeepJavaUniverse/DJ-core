@@ -6,7 +6,6 @@ import com.kovalevskyi.java.deep.model.graph.InputNeuron;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
 
@@ -117,10 +116,10 @@ class SingleLayerPerceptronTest {
                 random.nextDouble(),
                 random.nextDouble(),
                 random.nextDouble(),
-                0.1);
-
-        for (int i = 0; i < 100; i++) {
-            double error =
+                0.05);
+        double error = 0;
+        for (int i = 0; i < 1000; i++) {
+            error =
                     trainIteration(
                             1.,
                             1.,
@@ -163,9 +162,8 @@ class SingleLayerPerceptronTest {
                             0.);
             error = error / 8.;
             System.out.printf("ERROR: %s \n", error);
-            System.out.println(outputNeuron.getBackwardConnections());
-            System.out.println(outputNeuron.getBias());
         }
+        assertTrue(error < 0.1);
     }
 
     private double trainIteration(double friendInput,
@@ -191,21 +189,18 @@ class SingleLayerPerceptronTest {
 
     private void initiateOutputNeuronWithWeights(double wFriend,
                                                  double wVodka,
-                                                 double wParty,
+                                                 double wSunny,
                                                  double bias,
                                                  double learningRate) {
-        outputNeuron = new ConnectedNeuron(
-                Map.of(
-                        inputFriend, wFriend,
-                        inputVodka, wVodka,
-                        inputSunny, wParty
-                ),
-                bias,
-                new Sigmoid(),
-                learningRate,
-                forkJoinPool);
-        inputFriend.addForwardConnection(outputNeuron);
-        inputVodka.addForwardConnection(outputNeuron);
-        inputSunny.addForwardConnection(outputNeuron);
+        outputNeuron
+                = new ConnectedNeuron.Builder()
+                    .bias(bias)
+                    .activationFunction(new Sigmoid())
+                    .learningRate(learningRate)
+                    .forkJoinPool(forkJoinPool)
+                    .build();
+        inputFriend.connect(outputNeuron, wFriend);
+        inputVodka.connect(outputNeuron, wVodka);
+        inputSunny.connect(outputNeuron, wSunny);
     }
 }

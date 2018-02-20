@@ -4,6 +4,7 @@ import com.kovalevskyi.java.deep.model.activation.ActivationFunction;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
@@ -11,13 +12,14 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 import java.util.function.Function;
 
-public class ConnectedNeuron implements Neuron {
+public class ConnectedNeuron extends Neuron {
 
     private final ActivationFunction activationFunction;
 
     private final ForkJoinPool forkJoinPool;
 
-    private final ConcurrentHashMap<Neuron, Double> backwardConnections;
+    private final ConcurrentHashMap<Neuron, Double> backwardConnections
+            = new ConcurrentHashMap<>();
 
     private final Set<Neuron> forwardConnections = new HashSet<>();
 
@@ -37,32 +39,12 @@ public class ConnectedNeuron implements Neuron {
 
     private volatile double forwardInputToActivationFunction;
 
-    public ConnectedNeuron(final Map<Neuron, Double> backwardConnections,
-                           final double bias,
-                           final ActivationFunction activationFunction,
-                           final double learningRate,
-                           final ForkJoinPool forkJoinPool) {
-        this(backwardConnections,
-                bias,
-                activationFunction,
-                learningRate,
-                null,
-                forkJoinPool);
-    }
-
-    public ConnectedNeuron(final Map<Neuron, Double> backwardConnections,
-                           final double bias,
-                           final ActivationFunction activationFunction,
-                           final double learningRate,
-                           final String name,
-                           final ForkJoinPool forkJoinPool) {
-        this.forkJoinPool = forkJoinPool;
-        this.backwardConnections = new ConcurrentHashMap<>(backwardConnections);
-        this.learningRate = learningRate;
-        backwardConnections.keySet().forEach(n -> inputSignals.put(n, Double.NaN));
-        this.bias = bias;
-        this.activationFunction = activationFunction;
-        this.name = name;
+    private ConnectedNeuron(final ConnectedNeuron.Builder builder) {
+        this.activationFunction = builder.activationFunction;
+        this.forkJoinPool = builder.forkJoinPool;
+        this.learningRate = builder.learningRate;
+        this.name = builder.name;
+        this.bias = builder.bias;
     }
 
     public double getForwardResult() {
@@ -79,15 +61,13 @@ public class ConnectedNeuron implements Neuron {
     }
 
     @Override
-    public Set<Neuron> backwardConnections() {
-        return backwardConnections.keySet();
-    }
-
-    @Override
     public void forwardSignalReceived(final Neuron from, final Double value) {
         if (!inputSignals.containsKey(from)) {
             throw new RuntimeException(
-                    String.format("Neuron %s is not connected", from));
+                    String.format(
+                            "Neuron %s is not connected to the %s",
+                            from,
+                            this));
         }
         inputSignals.put(from, value);
         if (isAllSignalsReceived()) {
@@ -158,23 +138,15 @@ public class ConnectedNeuron implements Neuron {
     }
 
     @Override
-    public void addForwardConnection(final Neuron neuron) {
+    public void connect(final Neuron neuron, final Double weight) {
+        neuron.addBackwardConnection(this, weight);
         forwardConnections.add(neuron);
     }
 
     @Override
     public void addBackwardConnection(final Neuron neuron, final Double weight) {
         backwardConnections.put(neuron, weight);
-    }
-
-    @Override
-    public Map<Neuron, Double> getBackwardConnections() {
-        return backwardConnections;
-    }
-
-    @Override
-    public double getBias() {
-        return bias;
+        inputSignals.put(neuron, Double.NaN);
     }
 
     @Override
@@ -193,5 +165,55 @@ public class ConnectedNeuron implements Neuron {
                     .filter(v -> v != Double.NaN)
                     .count();
         return notNullCount == inputSignals.keySet().size();
+    }
+
+    public static class Builder {
+
+        private double bias = new Random().nextDouble();
+
+        private String name;
+
+        private ActivationFunction activationFunction;
+
+        private ForkJoinPool forkJoinPool;
+
+        private double learningRate = 0.2;
+
+        public Builder bias(final double bias) {
+            this.bias = bias;
+            return this;
+        }
+
+        public Builder name(final String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder activationFunction(final ActivationFunction activationFunction) {
+            this.activationFunction = activationFunction;
+            return this;
+        }
+
+        public Builder learningRate(final double learningRate) {
+            this.learningRate = learningRate;
+            return this;
+        }
+
+        public Builder forkJoinPool(final ForkJoinPool forkJoinPool) {
+            this.forkJoinPool = forkJoinPool;
+            return this;
+        }
+
+        public ConnectedNeuron build() {
+            if (forkJoinPool == null) {
+                throw new RuntimeException("ForkJoinPool need to be set in order to" +
+                        " create a ConnectedNeuron");
+            }
+            if (activationFunction == null) {
+                throw new RuntimeException("ActivationFunction need to be set in order to" +
+                        " create a ConnectedNeuron");
+            }
+            return new ConnectedNeuron(this);
+        }
     }
 }

@@ -3,11 +3,9 @@ package com.kovalevskyi.java.deep.model.graph;
 import java.util.Map;
 import java.util.Set;
 
-public interface Neuron {
+public abstract class Neuron {
 
-    void forwardInvalidate();
-
-    Set<Neuron> backwardConnections();
+    public abstract void forwardInvalidate();
 
     /**
      * Should be called when a Neuron receives input signal from the connected neuron.
@@ -27,16 +25,11 @@ public interface Neuron {
      *
      * @param from , Neuron that sends the signal.
      */
-    void forwardSignalReceived(Neuron from, Double value);
+    public abstract void forwardSignalReceived(Neuron from, Double value);
 
-    void backwardSignalReceived(Double value);
+    public abstract void backwardSignalReceived(Double value);
 
-    void addForwardConnection(Neuron neuron);
+    public abstract void connect(Neuron neuron, Double weight);
 
-    void addBackwardConnection(Neuron neuron, Double weight);
-
-    Map<Neuron, Double> getBackwardConnections();
-
-    double getBias();
-
+    abstract void addBackwardConnection(Neuron neuron, Double weight);
 }
