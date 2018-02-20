@@ -4,16 +4,17 @@ import com.kovalevskyi.java.deep.model.activation.Relu;
 import com.kovalevskyi.java.deep.model.activation.Sigmoid;
 import com.kovalevskyi.java.deep.model.graph.ConnectedNeuron;
 import com.kovalevskyi.java.deep.model.graph.InputNeuron;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static junit.framework.TestCase.assertTrue;
 
-class TwoLayersPerceptronTest {
+
+public class TwoLayersPerceptronTest {
 
     private ConnectedNeuron outputNeuron;
     private ConnectedNeuron hiddenNeuron1;
@@ -23,8 +24,8 @@ class TwoLayersPerceptronTest {
     private InputNeuron inputSunny;
     private ForkJoinPool forkJoinPool;
 
-    @BeforeEach
-    void setUp() {
+    @Before
+    public void setUp() {
         forkJoinPool = new ForkJoinPool();
         Random random = new Random();
         double learningRate = 0.2;
@@ -74,7 +75,7 @@ class TwoLayersPerceptronTest {
     }
 
     @Test
-    void testTraining() throws Exception {
+    public void testTraining() throws Exception {
         double error = .0;
         for (int i = 0; i < 1000; i++) {
             error =
