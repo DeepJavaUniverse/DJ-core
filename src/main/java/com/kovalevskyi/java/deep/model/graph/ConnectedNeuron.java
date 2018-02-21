@@ -12,7 +12,7 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 import java.util.function.Function;
 
-public class ConnectedNeuron extends Neuron {
+public class ConnectedNeuron implements Neuron {
 
     private final ActivationFunction activationFunction;
 
@@ -138,8 +138,7 @@ public class ConnectedNeuron extends Neuron {
     }
 
     @Override
-    public void connect(final Neuron neuron, final Double weight) {
-        neuron.addBackwardConnection(this, weight);
+    public void addForwardConnection(final Neuron neuron) {
         forwardConnections.add(neuron);
     }
 

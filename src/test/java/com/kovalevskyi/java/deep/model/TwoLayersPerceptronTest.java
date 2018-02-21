@@ -7,7 +7,6 @@ import com.kovalevskyi.java.deep.model.graph.InputNeuron;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
 

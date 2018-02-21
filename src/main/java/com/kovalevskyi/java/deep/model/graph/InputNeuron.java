@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class InputNeuron extends Neuron {
+public class InputNeuron implements Neuron {
 
     private Set<Neuron> connections = new HashSet<>();
 
@@ -32,8 +32,7 @@ public class InputNeuron extends Neuron {
     }
 
     @Override
-    public void connect(final Neuron neuron, final Double weight) {
-        neuron.addBackwardConnection(this, weight);
+    public void addForwardConnection(final Neuron neuron) {
         connections.add(neuron);
     }
 
