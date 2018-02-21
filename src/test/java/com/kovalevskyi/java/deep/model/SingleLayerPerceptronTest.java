@@ -3,15 +3,16 @@ package com.kovalevskyi.java.deep.model;
 import com.kovalevskyi.java.deep.model.activation.Sigmoid;
 import com.kovalevskyi.java.deep.model.graph.ConnectedNeuron;
 import com.kovalevskyi.java.deep.model.graph.InputNeuron;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static junit.framework.TestCase.assertTrue;
 
-class SingleLayerPerceptronTest {
+
+public class SingleLayerPerceptronTest {
 
     private ConnectedNeuron outputNeuron;
     private InputNeuron inputFriend;
@@ -19,8 +20,8 @@ class SingleLayerPerceptronTest {
     private InputNeuron inputSunny;
     private ForkJoinPool forkJoinPool;
 
-    @BeforeEach
-    void setUp() {
+    @Before
+    public void setUp() {
         inputFriend = new InputNeuron("friend");
         inputVodka = new InputNeuron("vodka");
         inputSunny = new InputNeuron("sunny");
@@ -28,7 +29,7 @@ class SingleLayerPerceptronTest {
     }
 
     @Test
-    void testExecutionAfterInvalidatingTheState() throws Exception {
+    public void testExecutionAfterInvalidatingTheState() throws Exception {
         initiateOutputNeuronWithWeights(
                 1.,
                 1.,
@@ -49,7 +50,7 @@ class SingleLayerPerceptronTest {
     }
 
     @Test
-    void testExecutionWhenResultShouldBeCloseTo1() throws Exception {
+    public void testExecutionWhenResultShouldBeCloseTo1() throws Exception {
         initiateOutputNeuronWithWeights(
                 1.,
                 1.,
@@ -64,7 +65,7 @@ class SingleLayerPerceptronTest {
     }
 
     @Test
-    void testExecutionWhenResultShouldBeCloseTo0() throws Exception {
+    public void testExecutionWhenResultShouldBeCloseTo0() throws Exception {
         initiateOutputNeuronWithWeights(
                 1.,
                 1.,
@@ -79,7 +80,7 @@ class SingleLayerPerceptronTest {
     }
 
     @Test
-    void testExecutionWhenResultShouldBeMoreThen0dot5() throws Exception {
+    public void testExecutionWhenResultShouldBeMoreThen0dot5() throws Exception {
         initiateOutputNeuronWithWeights(
                 1.,
                 1.,
@@ -94,7 +95,7 @@ class SingleLayerPerceptronTest {
     }
 
     @Test
-    void testExecutionWhenResultShouldBeLessThen0dot5() throws Exception {
+    public void testExecutionWhenResultShouldBeLessThen0dot5() throws Exception {
         initiateOutputNeuronWithWeights(
                 1.,
                 1.,
@@ -109,7 +110,7 @@ class SingleLayerPerceptronTest {
     }
 
     @Test
-    void testTraining() throws Exception {
+    public void testTraining() throws Exception {
         Random random = new Random();
         initiateOutputNeuronWithWeights(
                 random.nextDouble(),
