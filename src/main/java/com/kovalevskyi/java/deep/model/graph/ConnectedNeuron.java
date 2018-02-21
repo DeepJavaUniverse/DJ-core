@@ -39,12 +39,17 @@ public class ConnectedNeuron implements Neuron {
 
     private volatile double forwardInputToActivationFunction;
 
-    private ConnectedNeuron(final ConnectedNeuron.Builder builder) {
-        this.activationFunction = builder.activationFunction;
-        this.forkJoinPool = builder.forkJoinPool;
-        this.learningRate = builder.learningRate;
-        this.name = builder.name;
-        this.bias = builder.bias;
+    private ConnectedNeuron(
+            final ActivationFunction activationFunction,
+            final ForkJoinPool forkJoinPool,
+            final double learningRate,
+            final String name,
+            final double bias) {
+        this.activationFunction = activationFunction;
+        this.forkJoinPool = forkJoinPool;
+        this.learningRate = learningRate;
+        this.name = name;
+        this.bias = bias;
     }
 
     public double getForwardResult() {
@@ -212,7 +217,12 @@ public class ConnectedNeuron implements Neuron {
                 throw new RuntimeException("ActivationFunction need to be set in order to" +
                         " create a ConnectedNeuron");
             }
-            return new ConnectedNeuron(this);
+            return new ConnectedNeuron(
+                    activationFunction,
+                    forkJoinPool,
+                    learningRate,
+                    name,
+                    bias);
         }
     }
 }
