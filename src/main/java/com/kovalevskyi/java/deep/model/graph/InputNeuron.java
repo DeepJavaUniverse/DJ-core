@@ -22,11 +22,6 @@ public class InputNeuron implements Neuron {
     public void forwardInvalidate() { } // No-op
 
     @Override
-    public Set<Neuron> backwardConnections() {
-        return Set.of();
-    }
-
-    @Override
     public void forwardSignalReceived(final Neuron from, final Double value) {
         connections.forEach(n -> n.forwardSignalReceived(this, value));
     }
@@ -44,16 +39,6 @@ public class InputNeuron implements Neuron {
     @Override
     public void addBackwardConnection(final Neuron neuron, final Double weight) {
         throw new RuntimeException("addBackwardConnection should be never called on an InputNeuron");
-    }
-
-    @Override
-    public Map<Neuron, Double> getBackwardConnections() {
-        return Map.of();
-    }
-
-    @Override
-    public double getBias() {
-        return 0;
     }
 
     @Override

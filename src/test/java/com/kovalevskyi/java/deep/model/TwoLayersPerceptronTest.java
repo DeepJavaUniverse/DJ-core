@@ -7,7 +7,6 @@ import com.kovalevskyi.java.deep.model.graph.InputNeuron;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
 
@@ -28,50 +27,39 @@ public class TwoLayersPerceptronTest {
     public void setUp() {
         forkJoinPool = new ForkJoinPool();
         Random random = new Random();
-        double learningRate = 0.2;
+        double learningRate = 0.10;
         inputFriend = new InputNeuron("friend");
         inputVodka = new InputNeuron("vodka");
         inputSunny = new InputNeuron("sunny");
 
-        hiddenNeuron1 = new ConnectedNeuron(
-                Map.of(
-                        inputFriend, random.nextDouble(),
-                        inputVodka, random.nextDouble(),
-                        inputSunny, random.nextDouble()
-                ),
-                random.nextDouble(),
-                new Relu(),
-                learningRate,
-                forkJoinPool);
-        inputFriend.addForwardConnection(hiddenNeuron1);
-        inputVodka.addForwardConnection(hiddenNeuron1);
-        inputSunny.addForwardConnection(hiddenNeuron1);
+        hiddenNeuron1 = new ConnectedNeuron.Builder()
+                .activationFunction(new Relu())
+                .learningRate(learningRate)
+                .forkJoinPool(forkJoinPool)
+                .name("hidden1")
+                .build();
+        inputFriend.connect(hiddenNeuron1, random.nextDouble());
+        inputVodka.connect(hiddenNeuron1, random.nextDouble());
+        inputSunny.connect(hiddenNeuron1, random.nextDouble());
 
-        hiddenNeuron2 = new ConnectedNeuron(
-                Map.of(
-                        inputFriend, random.nextDouble(),
-                        inputVodka, random.nextDouble(),
-                        inputSunny, random.nextDouble()
-                ),
-                random.nextDouble(),
-                new Relu(),
-                learningRate,
-                forkJoinPool);
-        inputFriend.addForwardConnection(hiddenNeuron2);
-        inputVodka.addForwardConnection(hiddenNeuron2);
-        inputSunny.addForwardConnection(hiddenNeuron2);
+        hiddenNeuron2 = new ConnectedNeuron.Builder()
+                .activationFunction(new Relu())
+                .learningRate(learningRate)
+                .forkJoinPool(forkJoinPool)
+                .name("hidden2")
+                .build();
 
-        outputNeuron = new ConnectedNeuron(
-                Map.of(
-                        hiddenNeuron1, random.nextDouble(),
-                        hiddenNeuron2, random.nextDouble()
-                ),
-                random.nextDouble(),
-                new Sigmoid(),
-                learningRate,
-                forkJoinPool);
-        hiddenNeuron1.addForwardConnection(outputNeuron);
-        hiddenNeuron2.addForwardConnection(outputNeuron);
+        inputFriend.connect(hiddenNeuron2, random.nextDouble());
+        inputVodka.connect(hiddenNeuron2, random.nextDouble());
+        inputSunny.connect(hiddenNeuron2, random.nextDouble());
+
+        outputNeuron = new ConnectedNeuron.Builder()
+                .activationFunction(new Sigmoid())
+                .learningRate(learningRate)
+                .forkJoinPool(forkJoinPool)
+                .build();
+        hiddenNeuron1.connect(outputNeuron, random.nextDouble());
+        hiddenNeuron2.connect(outputNeuron, random.nextDouble());
     }
 
     @Test
