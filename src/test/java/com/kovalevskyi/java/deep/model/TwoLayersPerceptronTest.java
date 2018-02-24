@@ -27,7 +27,7 @@ public class TwoLayersPerceptronTest {
     public void setUp() {
         forkJoinPool = new ForkJoinPool();
         Random random = new Random();
-        double learningRate = 0.10;
+        double learningRate = 0.05;
         inputFriend = new InputNeuron("friend");
         inputVodka = new InputNeuron("vodka");
         inputSunny = new InputNeuron("sunny");
