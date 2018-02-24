@@ -1,4 +1,4 @@
-package com.kovalevskyi.java.deep.model.activation;
+package com.kovalevskyi.java.deep.core.model.activation;
 
 
 public class Relu implements ActivationFunction {

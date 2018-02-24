@@ -1,4 +1,4 @@
-package com.kovalevskyi.java.deep.model.graph;
+package com.kovalevskyi.java.deep.core.model.graph;
 
 
 public interface Neuron {

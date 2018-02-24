@@ -1,7 +1,6 @@
-package com.kovalevskyi.java.deep.model.graph;
+package com.kovalevskyi.java.deep.core.model.graph;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class InputNeuron implements Neuron {

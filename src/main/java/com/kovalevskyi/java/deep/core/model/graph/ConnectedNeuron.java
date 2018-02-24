@@ -1,6 +1,6 @@
-package com.kovalevskyi.java.deep.model.graph;
+package com.kovalevskyi.java.deep.core.model.graph;
 
-import com.kovalevskyi.java.deep.model.activation.ActivationFunction;
+import com.kovalevskyi.java.deep.core.model.activation.ActivationFunction;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
-import java.util.function.Function;
 
 public class ConnectedNeuron implements Neuron {
 

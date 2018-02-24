@@ -1,8 +1,8 @@
-package com.kovalevskyi.java.deep.model;
+package com.kovalevskyi.java.deep.core.model;
 
-import com.kovalevskyi.java.deep.model.activation.Sigmoid;
-import com.kovalevskyi.java.deep.model.graph.ConnectedNeuron;
-import com.kovalevskyi.java.deep.model.graph.InputNeuron;
+import com.kovalevskyi.java.deep.core.model.activation.Sigmoid;
+import com.kovalevskyi.java.deep.core.model.graph.ConnectedNeuron;
+import com.kovalevskyi.java.deep.core.model.graph.InputNeuron;
 import org.junit.Before;
 import org.junit.Test;
 
