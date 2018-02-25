@@ -1,5 +1,6 @@
 package com.kovalevskyi.java.deep.core.model.graph;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import com.kovalevskyi.java.deep.core.model.activation.ActivationFunction;
 
 import java.util.HashSet;
@@ -28,7 +29,7 @@ public class ConnectedNeuron implements Neuron {
 
     private final Map<Neuron, Double> inputSignals = new ConcurrentHashMap<>();
 
-    private volatile double bias;
+    private final AtomicDouble bias;
 
     private volatile boolean forwardCalculated;
 
@@ -48,7 +49,7 @@ public class ConnectedNeuron implements Neuron {
         this.forkJoinPool = forkJoinPool;
         this.learningRate = learningRate;
         this.name = name;
-        this.bias = bias;
+        this.bias = new AtomicDouble(bias);
     }
 
     public double getForwardResult() {
@@ -82,7 +83,7 @@ public class ConnectedNeuron implements Neuron {
                         .mapToDouble(connection ->
                                 inputSignals.get(connection.getKey())
                                         * connection.getValue())
-                        .sum() + bias;
+                        .sum() + bias.get();
             double signalToSend
                     = activationFunction.forward(
                             forwardInputToActivationFunction);
@@ -125,8 +126,7 @@ public class ConnectedNeuron implements Neuron {
             backwardConnections.compute(conn, (k, weight) ->
                weight + inputSignals.get(conn) * dz * learningRate
             ));
-        // TODO(issues/9): bias update is not Thread safe.
-        bias = bias + inputSignalsAverage * dz * learningRate;
+        bias.addAndGet(inputSignalsAverage * dz * learningRate);
         backwardConnections
                 .keySet()
                 .stream()
