@@ -18,14 +18,12 @@ public class SingleLayerPerceptronTest {
     private InputNeuron inputFriend;
     private InputNeuron inputVodka;
     private InputNeuron inputSunny;
-    private ForkJoinPool forkJoinPool;
 
     @Before
     public void setUp() {
         inputFriend = new InputNeuron("friend");
         inputVodka = new InputNeuron("vodka");
         inputSunny = new InputNeuron("sunny");
-        forkJoinPool = new ForkJoinPool();
     }
 
     @Test
@@ -174,16 +172,10 @@ public class SingleLayerPerceptronTest {
         inputFriend.forwardSignalReceived(null, friendInput);
         inputVodka.forwardSignalReceived(null, vodkaInput);
         inputSunny.forwardSignalReceived(null, sunnyInput);
-        while (forkJoinPool.getActiveThreadCount() > 0) {
-            Thread.sleep(5);
-        }
         double actualResult = outputNeuron.getForwardResult();
         double dA = expectedResult - actualResult;
         dA = dA * dA * dA;
         outputNeuron.backwardSignalReceived(dA);
-        while (forkJoinPool.getActiveThreadCount() > 0) {
-            Thread.sleep(5);
-        }
         outputNeuron.forwardInvalidate();
         return expectedResult - actualResult;
     }
@@ -198,7 +190,6 @@ public class SingleLayerPerceptronTest {
                     .bias(bias)
                     .activationFunction(new Sigmoid())
                     .learningRate(learningRate)
-                    .forkJoinPool(forkJoinPool)
                     .build();
         inputFriend.connect(outputNeuron, wFriend);
         inputVodka.connect(outputNeuron, wVodka);
