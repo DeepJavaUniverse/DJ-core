@@ -21,11 +21,9 @@ public class TwoLayersPerceptronTest {
     private InputNeuron inputFriend;
     private InputNeuron inputVodka;
     private InputNeuron inputSunny;
-    private ForkJoinPool forkJoinPool;
 
     @Before
     public void setUp() {
-        forkJoinPool = new ForkJoinPool();
         Random random = new Random();
         double learningRate = 0.05;
         inputFriend = new InputNeuron("friend");
@@ -35,7 +33,6 @@ public class TwoLayersPerceptronTest {
         hiddenNeuron1 = new ConnectedNeuron.Builder()
                 .activationFunction(new Relu())
                 .learningRate(learningRate)
-                .forkJoinPool(forkJoinPool)
                 .name("hidden1")
                 .build();
         inputFriend.connect(hiddenNeuron1, random.nextDouble());
@@ -45,7 +42,6 @@ public class TwoLayersPerceptronTest {
         hiddenNeuron2 = new ConnectedNeuron.Builder()
                 .activationFunction(new Relu())
                 .learningRate(learningRate)
-                .forkJoinPool(forkJoinPool)
                 .name("hidden2")
                 .build();
 
@@ -56,7 +52,6 @@ public class TwoLayersPerceptronTest {
         outputNeuron = new ConnectedNeuron.Builder()
                 .activationFunction(new Sigmoid())
                 .learningRate(learningRate)
-                .forkJoinPool(forkJoinPool)
                 .build();
         hiddenNeuron1.connect(outputNeuron, random.nextDouble());
         hiddenNeuron2.connect(outputNeuron, random.nextDouble());
@@ -120,15 +115,9 @@ public class TwoLayersPerceptronTest {
         inputFriend.forwardSignalReceived(null, friendInput);
         inputVodka.forwardSignalReceived(null, vodkaInput);
         inputSunny.forwardSignalReceived(null, sunnyInput);
-        while (forkJoinPool.getActiveThreadCount() > 0) {
-            Thread.sleep(5);
-        }
         double actualResult = outputNeuron.getForwardResult();
         double errorDy = 2 * (expectedResult - actualResult);
         outputNeuron.backwardSignalReceived(errorDy);
-        while (forkJoinPool.getActiveThreadCount() > 0) {
-            Thread.sleep(5);
-        }
         outputNeuron.forwardInvalidate();
         System.out.printf("For: F: %f V: %f S: %f Expected: %f Actual: %f\n",
                 friendInput,
