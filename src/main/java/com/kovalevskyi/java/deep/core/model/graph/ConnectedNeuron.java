@@ -96,6 +96,7 @@ public class ConnectedNeuron implements Neuron {
                     });
             inputSignalsAverage
                     = inputSignalsAverage / (double) signalReceived;
+            signalReceived = 0;
         }
     }
 
@@ -117,9 +118,9 @@ public class ConnectedNeuron implements Neuron {
         backwardConnections
                 .keySet()
                 .stream()
-                .forEach(conn -> {
-                    conn.backwardSignalReceived(backwardConnections.get(conn) * dz);
-                });
+                .forEach(conn ->
+                    conn.backwardSignalReceived(backwardConnections.get(conn) * dz)
+                );
     }
 
     @Override
