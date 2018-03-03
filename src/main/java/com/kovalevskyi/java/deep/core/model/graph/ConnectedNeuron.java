@@ -23,9 +23,11 @@ public class ConnectedNeuron implements Neuron {
 
     private final Map<Neuron, Double> inputSignals = new HashMap<>();
 
-    private volatile int signalReceived;
-
     private final AtomicDouble bias;
+
+    private final boolean debug;
+
+    private volatile int signalReceived;
 
     private volatile boolean forwardCalculated;
 
@@ -39,11 +41,13 @@ public class ConnectedNeuron implements Neuron {
             final ActivationFunction activationFunction,
             final double learningRate,
             final String name,
-            final double bias) {
+            final double bias,
+            final boolean debug) {
         this.activationFunction = activationFunction;
         this.learningRate = learningRate;
         this.name = name;
         this.bias = new AtomicDouble(bias);
+        this.debug = debug;
     }
 
     public double getForwardResult() {
@@ -109,6 +113,15 @@ public class ConnectedNeuron implements Neuron {
                 = activationFunction.backward(
                         forwardInputToActivationFunction);
         double dz = derivative * error;
+        if (debug) {
+            if (brokenValue(derivative)) {
+                throw new RuntimeException("derivative value is broken");
+            } else if (brokenValue(dz)) {
+                throw new RuntimeException("dz value is broken");
+            } else if (brokenValue(error)) {
+                throw new RuntimeException("error value is broken");
+            }
+        }
         backwardConnections.keySet().forEach(conn ->
             backwardConnections.compute(conn, (k, weight) ->
                weight + inputSignals.get(conn) * dz * learningRate
@@ -141,6 +154,28 @@ public class ConnectedNeuron implements Neuron {
         return super.toString();
     }
 
+    private static boolean brokenValue(final double value) {
+        if (value == Double.MAX_VALUE) {
+            return true;
+        }
+        if (value == Double.MIN_VALUE) {
+            return true;
+        }
+        if (value == 0.) {
+            return true;
+        }
+        if (value == Double.NaN) {
+            return true;
+        }
+        if (value == Double.NEGATIVE_INFINITY) {
+            return true;
+        }
+        if (value == Double.POSITIVE_INFINITY) {
+            return true;
+        }
+        return false;
+    }
+
     public static class Builder {
 
         private double bias = new Random().nextDouble();
@@ -150,6 +185,8 @@ public class ConnectedNeuron implements Neuron {
         private ActivationFunction activationFunction;
 
         private double learningRate = 0.2;
+
+        private boolean debug;
 
         public Builder bias(final double bias) {
             this.bias = bias;
@@ -171,6 +208,11 @@ public class ConnectedNeuron implements Neuron {
             return this;
         }
 
+        public Builder debug(final boolean debug) {
+            this.debug = debug;
+            return this;
+        }
+
         public ConnectedNeuron build() {
             if (activationFunction == null) {
                 throw new RuntimeException("ActivationFunction need to be set in order to" +
@@ -180,7 +222,8 @@ public class ConnectedNeuron implements Neuron {
                     activationFunction,
                     learningRate,
                     name,
-                    bias);
+                    bias,
+                    debug);
         }
     }
 }
