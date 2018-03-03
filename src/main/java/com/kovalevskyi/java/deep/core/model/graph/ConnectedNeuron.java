@@ -58,7 +58,6 @@ public class ConnectedNeuron implements Neuron {
     public void forwardInvalidate() {
         if (forwardCalculated) {
             forwardCalculated = false;
-            inputSignals.forEach((in, v) -> inputSignals.put(in, Double.NaN));
             backwardConnections.keySet().forEach(Neuron::forwardInvalidate);
             signalReceived = 0;
         }
@@ -110,6 +109,9 @@ public class ConnectedNeuron implements Neuron {
         if (!forwardCalculated) {
             throw new RuntimeException("Forward calculation is not yet completed");
         }
+        if (error == 0.) {
+            return;
+        }
         double derivative
                 = activationFunction.backward(
                         forwardInputToActivationFunction);
@@ -117,15 +119,22 @@ public class ConnectedNeuron implements Neuron {
         if (debug) {
             if (brokenValue(derivative)) {
                 throw new RuntimeException("derivative value is broken");
-            } else if (brokenValue(dz)) {
+            } else if (brokenValue(dz) || (error != 0. && dz == 0.)) {
                 throw new RuntimeException("dz value is broken");
             } else if (brokenValue(error)) {
                 throw new RuntimeException("error value is broken");
             }
         }
         backwardConnections.keySet().forEach(conn ->
-            backwardConnections.compute(conn, (k, weight) ->
-               weight + inputSignals.get(conn) * dz * learningRate
+            backwardConnections.compute(conn, (k, weight) -> {
+                    final double newWeight = weight + inputSignals.get(conn) * dz * learningRate;
+                    if (debug) {
+                        if (brokenValue(newWeight)) {
+                            throw new RuntimeException("Updated connection weight is broken");
+                        }
+                    }
+                    return newWeight;
+                }
             ));
         bias.addAndGet(inputSignalsAverage * dz * learningRate);
         backwardConnections
@@ -160,9 +169,6 @@ public class ConnectedNeuron implements Neuron {
             return true;
         }
         if (value == Double.MIN_VALUE) {
-            return true;
-        }
-        if (value == 0.) {
             return true;
         }
         if (value == Double.NaN) {
