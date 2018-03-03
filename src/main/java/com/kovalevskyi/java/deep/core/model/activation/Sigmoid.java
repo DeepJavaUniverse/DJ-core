@@ -19,9 +19,9 @@ public class Sigmoid implements ActivationFunction {
 
     @Override
     public Double backward(final Double error) {
-        if (error > 1.) {
+        if (enforceLimit && error > 1.) {
             return forward(1.) * (1 - forward(1.));
-        } else if (error < -10.) {
+        } else if (enforceLimit && error < -10.) {
             return forward(-1.) * (1 - forward(-1.));
         }
         return forward(error) * (1 - forward(error));
