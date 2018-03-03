@@ -23,7 +23,7 @@ hs_err_pid*
 
 # IDEA
 .idea/
-DeepJava.iml
+*.iml
 
 # binaries
 target/
