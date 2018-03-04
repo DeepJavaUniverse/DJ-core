@@ -23,8 +23,6 @@ public class ConnectedNeuron implements Neuron {
 
     private volatile double inputSignalsAverage;
 
-    private volatile double forwardInputToActivationFunction;
-
     private ConnectedNeuron(
             final ActivationFunction activationFunction,
             final double bias) {
@@ -49,7 +47,7 @@ public class ConnectedNeuron implements Neuron {
         inputSignals.put(from, value);
         inputSignalsAverage += inputSignalsAverage;
         if (backwardConnections.size() == signalReceived) {
-            forwardInputToActivationFunction
+            double forwardInputToActivationFunction
                     = backwardConnections
                         .entrySet()
                         .stream()
