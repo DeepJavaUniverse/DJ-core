@@ -84,6 +84,11 @@ public class ConnectedNeuron implements Neuron {
                                 inputSignals.get(connection.getKey())
                                         * connection.getValue())
                         .sum() + bias.get();
+            if (debug) {
+                if (brokenValue(forwardInputToActivationFunction)) {
+                    throw new RuntimeException("Forward input to activation function is broken");
+                }
+            }
             double signalToSend
                     = activationFunction.forward(
                             forwardInputToActivationFunction);
