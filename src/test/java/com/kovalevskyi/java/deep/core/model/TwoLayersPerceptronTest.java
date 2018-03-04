@@ -60,7 +60,7 @@ public class TwoLayersPerceptronTest {
     @Test
     public void testTraining() throws Exception {
         double error = .0;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1200; i++) {
             error =
                     trainIteration(
                             1.,
