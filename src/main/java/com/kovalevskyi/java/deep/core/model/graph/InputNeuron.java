@@ -18,9 +18,6 @@ public class InputNeuron implements Neuron {
     }
 
     @Override
-    public void forwardInvalidate() { } // No-op
-
-    @Override
     public void forwardSignalReceived(final Neuron from, final Double value) {
         connections.forEach(n -> n.forwardSignalReceived(this, value));
     }

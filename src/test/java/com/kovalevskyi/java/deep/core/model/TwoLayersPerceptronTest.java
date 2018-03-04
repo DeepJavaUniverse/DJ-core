@@ -118,7 +118,6 @@ public class TwoLayersPerceptronTest {
         double actualResult = outputNeuron.getForwardResult();
         double errorDy = 2 * (expectedResult - actualResult);
         outputNeuron.backwardSignalReceived(errorDy);
-        outputNeuron.forwardInvalidate();
         System.out.printf("For: F: %f V: %f S: %f Expected: %f Actual: %f\n",
                 friendInput,
                 vodkaInput,
