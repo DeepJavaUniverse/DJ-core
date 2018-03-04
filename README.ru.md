@@ -5,6 +5,38 @@ DeepJava (DJ) - фреймворк глубокого обучения на Java
 * Фреймворк позволяет экспериментировать. У вас есть идея, как представить вычислительный граф необычным способом? Вы можете попробовать сделать это здесь;
 * Легко использовать. DJ прост, так как он не ставит своей основной целью скорость работы в отличие от других фреймворков.
 
+# Пример Использования
+
+## Однослойный персептрон с сигмоидом в качестве функции активации
+
+```java
+InputNeuron inputFriend = new InputNeuron("friend");
+InputNeuron inputVodka = new InputNeuron("vodka");
+InputNeuron inputSunny = new InputNeuron("sunny");
+
+ConnectedNeuron outputNeuron
+        = new ConnectedNeuron.Builder()
+            .bias(0.1)
+            .activationFunction(new Sigmoid())
+            .learningRate(0.2)
+            .build();
+
+inputFriend.connect(outputNeuron, wFriend);
+inputVodka.connect(outputNeuron, wVodka);
+inputSunny.connect(outputNeuron, wSunny);
+
+// Посылаем входные сигналы:
+inputFriend.forwardSignalReceived(null, 1.);
+inputVodka.forwardSignalReceived(null, 1.);
+inputSunny.forwardSignalReceived(null, 1.);
+
+// Посылаем обратно ошибку:
+outputNeuron.backwardSignalReceived(dA);
+
+// Обнуляем данные в сети;
+outputNeuron.forwardInvalidate();
+```
+
 # Помощь проекту
 
 Вы можете:
