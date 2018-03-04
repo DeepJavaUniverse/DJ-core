@@ -36,9 +36,6 @@ inputSunny.forwardSignalReceived(null, 1.);
 
 // Sending error back to the graph:
 outputNeuron.backwardSignalReceived(dA);
-
-// Invalidating computational results;
-outputNeuron.forwardInvalidate();
 ```
 
 # How To Contribute
