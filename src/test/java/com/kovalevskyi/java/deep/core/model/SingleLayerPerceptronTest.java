@@ -6,9 +6,6 @@ import com.kovalevskyi.java.deep.core.model.graph.InputNeuron;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Random;
-import java.util.concurrent.ForkJoinPool;
-
 import static junit.framework.TestCase.assertTrue;
 
 
@@ -21,9 +18,9 @@ public class SingleLayerPerceptronTest {
 
     @Before
     public void setUp() {
-        inputFriend = new InputNeuron("friend");
-        inputVodka = new InputNeuron("vodka");
-        inputSunny = new InputNeuron("sunny");
+        inputFriend = new InputNeuron();
+        inputVodka = new InputNeuron();
+        inputSunny = new InputNeuron();
     }
 
     @Test
@@ -32,14 +29,12 @@ public class SingleLayerPerceptronTest {
                 1.,
                 1.,
                 1.,
-                -1.,
-                0.1);
+                -1.);
 
         inputFriend.forwardSignalReceived(null, 1.);
         inputVodka.forwardSignalReceived(null, 1.);
         inputSunny.forwardSignalReceived(null, 1.);
         assertTrue(outputNeuron.getForwardResult() > .7);
-        outputNeuron.forwardInvalidate();
 
         inputFriend.forwardSignalReceived(null, 0.);
         inputVodka.forwardSignalReceived(null, 0.);
@@ -53,8 +48,7 @@ public class SingleLayerPerceptronTest {
                 1.,
                 1.,
                 1.,
-                -1.,
-                0.1);
+                -1.);
 
         inputFriend.forwardSignalReceived(null, 1.);
         inputVodka.forwardSignalReceived(null, 1.);
@@ -68,8 +62,7 @@ public class SingleLayerPerceptronTest {
                 1.,
                 1.,
                 1.,
-                -1.,
-                0.1);
+                -1.);
 
         inputFriend.forwardSignalReceived(null, 0.);
         inputVodka.forwardSignalReceived(null, 0.);
@@ -83,8 +76,7 @@ public class SingleLayerPerceptronTest {
                 1.,
                 1.,
                 1.,
-                -1.,
-                0.1);
+                -1.);
 
         inputFriend.forwardSignalReceived(null, 1.);
         inputVodka.forwardSignalReceived(null, 0.);
@@ -98,8 +90,7 @@ public class SingleLayerPerceptronTest {
                 1.,
                 1.,
                 1.,
-                -1.,
-                0.1);
+                -1.);
 
         inputFriend.forwardSignalReceived(null,0.);
         inputVodka.forwardSignalReceived(null,0.);
@@ -107,89 +98,14 @@ public class SingleLayerPerceptronTest {
         assertTrue(outputNeuron.getForwardResult() <= .5);
     }
 
-    @Test
-    public void testTraining() throws Exception {
-        Random random = new Random();
-        initiateOutputNeuronWithWeights(
-                random.nextDouble(),
-                random.nextDouble(),
-                random.nextDouble(),
-                random.nextDouble(),
-                0.05);
-        double error = 0;
-        for (int i = 0; i < 1000; i++) {
-            error =
-                    trainIteration(
-                            1.,
-                            1.,
-                            1.,
-                            1.)
-                    + trainIteration(
-                            1.,
-                            1.,
-                            0.,
-                            1.)
-                    + trainIteration(
-                            1.,
-                            0.,
-                            1.,
-                            1.)
-                    + trainIteration(
-                            0.,
-                            1.,
-                            1.,
-                            1.)
-                    + trainIteration(
-                            0.,
-                            0.,
-                            1.,
-                            0.)
-                    + trainIteration(
-                            0.,
-                            1.,
-                            0.,
-                            0.)
-                    + trainIteration(
-                            1.,
-                            0.,
-                            0.,
-                            0.)
-                    + trainIteration(
-                            0.,
-                            0.,
-                            0.,
-                            0.);
-            error = error / 8.;
-            System.out.printf("ERROR: %s \n", error);
-        }
-        assertTrue(error < 0.1);
-    }
-
-    private double trainIteration(double friendInput,
-                                double vodkaInput,
-                                double sunnyInput,
-                                double expectedResult) throws Exception {
-        inputFriend.forwardSignalReceived(null, friendInput);
-        inputVodka.forwardSignalReceived(null, vodkaInput);
-        inputSunny.forwardSignalReceived(null, sunnyInput);
-        double actualResult = outputNeuron.getForwardResult();
-        double dA = expectedResult - actualResult;
-        dA = dA * dA * dA;
-        outputNeuron.backwardSignalReceived(dA);
-        outputNeuron.forwardInvalidate();
-        return expectedResult - actualResult;
-    }
-
     private void initiateOutputNeuronWithWeights(double wFriend,
                                                  double wVodka,
                                                  double wSunny,
-                                                 double bias,
-                                                 double learningRate) {
+                                                 double bias) {
         outputNeuron
                 = new ConnectedNeuron.Builder()
                     .bias(bias)
                     .activationFunction(new Sigmoid())
-                    .learningRate(learningRate)
                     .build();
         inputFriend.connect(outputNeuron, wFriend);
         inputVodka.connect(outputNeuron, wVodka);
