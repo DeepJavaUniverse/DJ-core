@@ -7,6 +7,7 @@
     <groupId>com.kovalevskyi.java.deep</groupId>
     <artifactId>core</artifactId>
     <version>0.1-SNAPSHOT</version>
+
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -32,6 +33,24 @@
                 <configuration>
                     <source>9</source>
                     <target>9</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.0.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>8.8</version>
+                    </dependency>
+                </dependencies>
+                <!-- Specifying configuration here will take effect on the execution of "mvn checkstyle:checkstyle",
+                     but will not take effect on the execution of "mvn site"  -->
+                <configuration>
+                    <configLocation>checkstyle.xml</configLocation>
+                    <failOnViolation>false</failOnViolation>
                 </configuration>
             </plugin>
         </plugins>
