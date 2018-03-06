@@ -32,9 +32,6 @@ inputSunny.forwardSignalReceived(null, 1.);
 
 // Посылаем обратно ошибку:
 outputNeuron.backwardSignalReceived(dA);
-
-// Обнуляем данные в сети;
-outputNeuron.forwardInvalidate();
 ```
 
 # Помощь проекту

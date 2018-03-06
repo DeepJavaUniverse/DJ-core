@@ -4,10 +4,6 @@ import com.google.common.util.concurrent.AtomicDouble;
 import com.kovalevskyi.java.deep.core.model.activation.ActivationFunction;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.RecursiveAction;
 
 public class ConnectedNeuron implements Neuron {
 
@@ -26,8 +22,6 @@ public class ConnectedNeuron implements Neuron {
     private volatile int signalReceived;
 
     private final AtomicDouble bias;
-
-    private volatile boolean forwardCalculated;
 
     private volatile double forwardResult;
 
@@ -48,16 +42,6 @@ public class ConnectedNeuron implements Neuron {
 
     public double getForwardResult() {
         return forwardResult;
-    }
-
-    @Override
-    public void forwardInvalidate() {
-        if (forwardCalculated) {
-            forwardCalculated = false;
-            inputSignals.forEach((in, v) -> inputSignals.put(in, Double.NaN));
-            backwardConnections.keySet().forEach(Neuron::forwardInvalidate);
-            signalReceived = 0;
-        }
     }
 
     @Override
@@ -85,7 +69,6 @@ public class ConnectedNeuron implements Neuron {
                     = activationFunction.forward(
                             forwardInputToActivationFunction);
             forwardResult = signalToSend;
-            forwardCalculated = true;
 
             forwardConnections
                     .stream()
@@ -103,13 +86,22 @@ public class ConnectedNeuron implements Neuron {
 
     @Override
     public void backwardSignalReceived(final Double error) {
-        if (!forwardCalculated) {
+        if (!forwardCalculated()) {
             throw new RuntimeException("Forward calculation is not yet completed");
         }
-        double derivative
+        if (error == 0.) {
+            return;
+        }
+        final double derivative
                 = activationFunction.backward(
                         forwardInputToActivationFunction);
-        double dz = derivative * error;
+        if (derivative == 0.) {
+            return;
+        }
+        final double dz = derivative * error;
+        if (dz == 0) {
+            return;
+        }
         backwardConnections.keySet().forEach(conn ->
             backwardConnections.compute(conn, (k, weight) ->
                weight + inputSignals.get(conn) * dz * learningRate
@@ -140,6 +132,10 @@ public class ConnectedNeuron implements Neuron {
             return name;
         }
         return super.toString();
+    }
+
+    private boolean forwardCalculated() {
+        return signalReceived == 0;
     }
 
     public static class Builder {

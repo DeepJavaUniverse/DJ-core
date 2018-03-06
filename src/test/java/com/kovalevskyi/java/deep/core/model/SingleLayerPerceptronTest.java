@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Random;
-import java.util.concurrent.ForkJoinPool;
 
 import static junit.framework.TestCase.assertTrue;
 
@@ -27,7 +26,7 @@ public class SingleLayerPerceptronTest {
     }
 
     @Test
-    public void testExecutionAfterInvalidatingTheState() throws Exception {
+    public void test2Execution() throws Exception {
         initiateOutputNeuronWithWeights(
                 1.,
                 1.,
@@ -39,7 +38,6 @@ public class SingleLayerPerceptronTest {
         inputVodka.forwardSignalReceived(null, 1.);
         inputSunny.forwardSignalReceived(null, 1.);
         assertTrue(outputNeuron.getForwardResult() > .7);
-        outputNeuron.forwardInvalidate();
 
         inputFriend.forwardSignalReceived(null, 0.);
         inputVodka.forwardSignalReceived(null, 0.);
@@ -176,7 +174,6 @@ public class SingleLayerPerceptronTest {
         double dA = expectedResult - actualResult;
         dA = dA * dA * dA;
         outputNeuron.backwardSignalReceived(dA);
-        outputNeuron.forwardInvalidate();
         return expectedResult - actualResult;
     }
 
