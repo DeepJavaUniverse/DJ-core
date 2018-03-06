@@ -60,7 +60,7 @@ public class TwoLayersPerceptronTest {
     @Test
     public void testTraining() throws Exception {
         double error = .0;
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1200; i++) {
             error =
                     trainIteration(
                             1.,
@@ -105,7 +105,7 @@ public class TwoLayersPerceptronTest {
             error = error / 8.;
             System.out.printf("ERROR: %s \n", error);
         }
-        assertTrue(Math.abs(error) < 0.1);
+        assertTrue(Math.abs(error) < 0.15);
     }
 
     private double trainIteration(double friendInput,
@@ -118,7 +118,6 @@ public class TwoLayersPerceptronTest {
         double actualResult = outputNeuron.getForwardResult();
         double errorDy = 2 * (expectedResult - actualResult);
         outputNeuron.backwardSignalReceived(errorDy);
-        outputNeuron.forwardInvalidate();
         System.out.printf("For: F: %f V: %f S: %f Expected: %f Actual: %f\n",
                 friendInput,
                 vodkaInput,

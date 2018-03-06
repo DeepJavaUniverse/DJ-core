@@ -4,10 +4,6 @@ import com.google.common.util.concurrent.AtomicDouble;
 import com.kovalevskyi.java.deep.core.model.activation.ActivationFunction;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.RecursiveAction;
 
 public class ConnectedNeuron implements Neuron {
 
@@ -28,8 +24,6 @@ public class ConnectedNeuron implements Neuron {
     private final boolean debug;
 
     private volatile int signalReceived;
-
-    private volatile boolean forwardCalculated;
 
     private volatile double forwardResult;
 
@@ -52,15 +46,6 @@ public class ConnectedNeuron implements Neuron {
 
     public double getForwardResult() {
         return forwardResult;
-    }
-
-    @Override
-    public void forwardInvalidate() {
-        if (forwardCalculated) {
-            forwardCalculated = false;
-            backwardConnections.keySet().forEach(Neuron::forwardInvalidate);
-            signalReceived = 0;
-        }
     }
 
     @Override
@@ -93,7 +78,6 @@ public class ConnectedNeuron implements Neuron {
                     = activationFunction.forward(
                             forwardInputToActivationFunction);
             forwardResult = signalToSend;
-            forwardCalculated = true;
 
             forwardConnections
                     .stream()
@@ -111,15 +95,18 @@ public class ConnectedNeuron implements Neuron {
 
     @Override
     public void backwardSignalReceived(final Double error) {
-        if (!forwardCalculated) {
+        if (!forwardCalculated()) {
             throw new RuntimeException("Forward calculation is not yet completed");
         }
         if (error == 0.) {
             return;
         }
-        double derivative
+        final double derivative
                 = activationFunction.backward(
                         forwardInputToActivationFunction);
+        if (derivative == 0.) {
+            return;
+        }
         double dz = derivative * error;
         if (debug) {
             if (brokenValue(derivative)) {
@@ -186,6 +173,10 @@ public class ConnectedNeuron implements Neuron {
             return true;
         }
         return false;
+    }
+
+    private boolean forwardCalculated() {
+        return signalReceived == 0;
     }
 
     public static class Builder {
