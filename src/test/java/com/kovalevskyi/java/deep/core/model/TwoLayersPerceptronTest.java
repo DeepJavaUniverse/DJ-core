@@ -105,7 +105,7 @@ public class TwoLayersPerceptronTest {
             error = error / 8.;
             System.out.printf("ERROR: %s \n", error);
         }
-        assertTrue(Math.abs(error) < 0.1);
+        assertTrue(Math.abs(error) < 0.15);
     }
 
     private double trainIteration(double friendInput,
