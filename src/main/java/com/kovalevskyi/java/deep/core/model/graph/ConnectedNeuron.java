@@ -44,6 +44,7 @@ public class ConnectedNeuron implements Neuron {
         this.debug = debug;
     }
 
+    @Override
     public double getForwardResult() {
         return forwardResult;
     }
