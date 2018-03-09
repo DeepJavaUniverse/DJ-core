@@ -1,6 +1,5 @@
-package com.kovalevskyi.java.deep.core.model.optimizer;
+package com.kovalevskyi.java.deep.core.optimizer;
 
-import com.kovalevskyi.java.deep.core.model.graph.ConnectedNeuron;
 import com.kovalevskyi.java.deep.core.model.graph.Neuron;
 import com.kovalevskyi.java.deep.core.model.loss.Loss;
 
@@ -9,11 +8,16 @@ import java.util.stream.IntStream;
 
 public class SGDOptimizer implements Optimizer {
 
+    private final Loss loss;
+
+    public SGDOptimizer(final Loss loss) {
+        this.loss = loss;
+    }
+
     @Override
     public void train(
             final List<Neuron> inputNeurons,
             final List<Neuron> outputNeurons,
-            final Loss lossFunction,
             final double[][] inputData,
             final double[][] expectedResult) {
         // TODO
