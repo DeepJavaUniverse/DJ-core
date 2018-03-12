@@ -99,15 +99,10 @@ public class ConnectedNeuron implements Neuron {
         if (!forwardCalculated()) {
             throw new RuntimeException("Forward calculation is not yet completed");
         }
-        if (error == 0.) {
-            return;
-        }
         final double derivative
                 = activationFunction.backward(
                         forwardInputToActivationFunction);
-        if (derivative == 0.) {
-            return;
-        }
+
         double dz = derivative * error;
         if (debug) {
             if (brokenValue(derivative)) {
@@ -117,6 +112,12 @@ public class ConnectedNeuron implements Neuron {
             } else if (brokenValue(error)) {
                 throw new RuntimeException("error value is broken");
             }
+        }
+        if (error == 0.) {
+            return;
+        }
+        if (derivative == 0.) {
+            return;
         }
         backwardConnections.keySet().forEach(conn ->
             backwardConnections.compute(conn, (k, weight) -> {
