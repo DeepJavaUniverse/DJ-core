@@ -38,6 +38,11 @@ public class InputNeuron implements Neuron {
     }
 
     @Override
+    public double getForwardResult() {
+        return 0;
+    }
+
+    @Override
     public String toString() {
         if (name != null) {
             return name;

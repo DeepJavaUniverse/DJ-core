@@ -10,11 +10,11 @@ public class SGDOptimizer implements Optimizer {
 
     private final Loss loss;
     private final int numberOfEpochsToTrain;
-    private final LossCalculatedListener lossCalculatedListener;
+    private final OptimizerProgressListener lossCalculatedListener;
 
     public SGDOptimizer(final Loss loss,
                         final int numberOfEpochsToTrain,
-                        final LossCalculatedListener lossCalculatedListener) {
+                        final OptimizerProgressListener lossCalculatedListener) {
         this.loss = loss;
         this.numberOfEpochsToTrain = numberOfEpochsToTrain;
         this.lossCalculatedListener = lossCalculatedListener;
@@ -33,19 +33,22 @@ public class SGDOptimizer implements Optimizer {
             final double[][] expectedResult,
             final double[][] inputTestData,
             final double[][] expectedTestResult) {
-         IntStream.range(0, numberOfEpochsToTrain).forEach(i -> {
+         IntStream.range(0, numberOfEpochsToTrain).forEach(epoch -> {
                 trainIteration(
                         inputNeurons,
                         outputNeurons,
-                        inputData[i],
-                        expectedResult[i]);
+                        inputData[epoch],
+                        expectedResult[epoch]);
                 if (lossCalculatedListener != null) {
                     final double loss = calculateLoss(
                             inputNeurons,
                             outputNeurons,
                             inputTestData,
                             expectedTestResult);
-                    lossCalculatedListener.onLossCalculated(loss);
+                    lossCalculatedListener.onProgress(
+                            loss,
+                            epoch,
+                            numberOfEpochsToTrain);
                 }
             }
          );
@@ -56,10 +59,10 @@ public class SGDOptimizer implements Optimizer {
             final List<Neuron> outputNeurons,
             final double[] inputData,
             final double[] expectedResults) {
-        IntStream.range(0, inputData.length).forEach(i ->
+        IntStream.range(0, inputData.length).forEach(example ->
             inputNeurons
-                    .get(i)
-                    .forwardSignalReceived(null, inputData[i])
+                    .get(example)
+                    .forwardSignalReceived(null, inputData[example])
         );
         IntStream.range(0, outputNeurons.size()).forEach(
                 i -> {
@@ -79,17 +82,25 @@ public class SGDOptimizer implements Optimizer {
             final List<Neuron> outputNeurons,
             final double[][] inputData,
             final double[][] expectedResults) {
-        IntStream.range(0, inputData.length).forEach({
-            IntStream.range(0, inputData.length).forEach(i ->
-                    inputNeurons
-                            .get(i)
-                            .forwardSignalReceived(null, inputData[i])
-            );
-            return IntStream.range(0, expectedResults.length).mapToDouble(i ->
-                    loss.error(
-                            outputNeurons.get(i).getForwardResult(),
-                            expectedResults[i])
-            ).sum();
-        });
+        return IntStream
+                .range(0, inputData.length)
+                .mapToDouble(exampleIndex -> {
+                    IntStream.range(0, inputData.length).forEach(i ->
+                            inputNeurons
+                                    .get(i)
+                                    .forwardSignalReceived(
+                                            null,
+                                            inputData[exampleIndex][i])
+                    );
+                    return IntStream
+                            .range(0, expectedResults.length)
+                            .mapToDouble(i ->
+                                loss.error(
+                                        outputNeurons
+                                                .get(i)
+                                                .getForwardResult(),
+                                        expectedResults[exampleIndex][i])
+                    ).sum();
+        }).average().getAsDouble();
     }
 }
