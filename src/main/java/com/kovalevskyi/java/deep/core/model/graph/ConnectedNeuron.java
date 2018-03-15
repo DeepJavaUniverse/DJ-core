@@ -8,19 +8,12 @@ import java.util.*;
 public class ConnectedNeuron implements Neuron {
 
     private final ActivationFunction activationFunction;
-
     private final Map<Neuron, Double> backwardConnections = new HashMap<>();
-
     private final Set<Neuron> forwardConnections = new HashSet<>();
-
     private final Map<Neuron, Double> inputSignals = new HashMap<>();
-
     private volatile int signalReceived;
-
     private final AtomicDouble bias;
-
     private volatile double forwardResult;
-
     private volatile double inputSignalsAverage;
 
     private ConnectedNeuron(
