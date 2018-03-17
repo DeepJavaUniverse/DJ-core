@@ -34,22 +34,24 @@ public class SGDOptimizer implements Optimizer {
             final double[][] inputTestData,
             final double[][] expectedTestResult) {
          IntStream.range(0, numberOfEpochsToTrain).forEach(epoch -> {
-                trainIteration(
-                        inputNeurons,
-                        outputNeurons,
-                        inputData[epoch],
-                        expectedResult[epoch]);
-                if (lossCalculatedListener != null) {
-                    final double loss = calculateLoss(
-                            inputNeurons,
-                            outputNeurons,
-                            inputTestData,
-                            expectedTestResult);
-                    lossCalculatedListener.onProgress(
-                            loss,
-                            epoch,
-                            numberOfEpochsToTrain);
-                }
+             if (lossCalculatedListener != null) {
+                 final double loss = calculateLoss(
+                         inputNeurons,
+                         outputNeurons,
+                         inputTestData,
+                         expectedTestResult);
+                 lossCalculatedListener.onProgress(
+                         loss,
+                         epoch,
+                         numberOfEpochsToTrain);
+             }
+             IntStream.range(0, inputData.length).forEach(index -> {
+                 trainIteration(
+                         inputNeurons,
+                         outputNeurons,
+                         inputData[index],
+                         expectedResult[index]);
+             });
             }
          );
     }
@@ -85,7 +87,7 @@ public class SGDOptimizer implements Optimizer {
         return IntStream
                 .range(0, inputData.length)
                 .mapToDouble(exampleIndex -> {
-                    IntStream.range(0, inputData.length).forEach(i ->
+                    IntStream.range(0, inputData[exampleIndex].length).forEach(i ->
                             inputNeurons
                                     .get(i)
                                     .forwardSignalReceived(
@@ -93,7 +95,7 @@ public class SGDOptimizer implements Optimizer {
                                             inputData[exampleIndex][i])
                     );
                     return IntStream
-                            .range(0, expectedResults.length)
+                            .range(0, expectedResults[exampleIndex].length)
                             .mapToDouble(i ->
                                 loss.error(
                                         outputNeurons
