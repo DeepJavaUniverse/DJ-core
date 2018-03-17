@@ -6,6 +6,7 @@ import com.kovalevskyi.java.deep.core.model.loss.Loss;
 import java.util.List;
 import java.util.stream.IntStream;
 
+
 public class SGDOptimizer implements Optimizer {
 
     private final Loss loss;

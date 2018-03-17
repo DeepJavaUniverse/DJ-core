@@ -5,6 +5,7 @@ import com.kovalevskyi.java.deep.core.model.loss.Loss;
 
 import java.util.List;
 
+
 public interface Optimizer {
 
     default void train(final List<Neuron> inputNeurons,

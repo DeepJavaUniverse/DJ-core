@@ -1,6 +1,7 @@
 package com.kovalevskyi.java.deep.core.optimizer;
 
-public class TerminalOptimezerProgressListener implements OptimizerProgressListener {
+
+public class TerminalOptimizerProgressListener implements OptimizerProgressListener {
     
     public void onProgress(
             final double loss,

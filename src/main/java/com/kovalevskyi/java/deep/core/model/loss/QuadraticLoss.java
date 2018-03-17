@@ -1,5 +1,6 @@
 package com.kovalevskyi.java.deep.core.model.loss;
 
+
 public class QuadraticLoss implements Loss {
     
     @Override

@@ -1,5 +1,6 @@
 package com.kovalevskyi.java.deep.core.optimizer;
 
+
 public interface OptimizerProgressListener {
 
     void onProgress(
