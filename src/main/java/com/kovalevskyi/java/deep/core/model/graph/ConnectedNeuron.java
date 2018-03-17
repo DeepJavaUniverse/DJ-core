@@ -30,13 +30,6 @@ public class ConnectedNeuron implements Neuron {
     @Override
     public void forwardSignalReceived(final Neuron from, final Double value) {
         signalReceived++;
-        if (!inputSignals.containsKey(from)) {
-            throw new RuntimeException(
-                    String.format(
-                            "Neuron %s is not connected to the %s",
-                            from,
-                            this));
-        }
         inputSignals.put(from, value);
         inputSignalsAverage += inputSignalsAverage;
         if (backwardConnections.size() == signalReceived) {
@@ -48,6 +41,7 @@ public class ConnectedNeuron implements Neuron {
                                 inputSignals.get(connection.getKey())
                                         * connection.getValue())
                         .sum() + bias.get();
+            
             double signalToSend
                     = activationFunction.forward(
                             forwardInputToActivationFunction);
