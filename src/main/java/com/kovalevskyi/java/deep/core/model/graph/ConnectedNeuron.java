@@ -60,7 +60,7 @@ public class ConnectedNeuron implements Neuron {
                             this));
         }
         inputSignals.put(from, value);
-        inputSignalsAverage += inputSignalsAverage;
+        inputSignalsAverage += value;
         if (backwardConnections.size() == signalReceived) {
             forwardInputToActivationFunction
                     = backwardConnections
