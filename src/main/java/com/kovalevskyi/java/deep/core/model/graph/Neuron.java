@@ -33,4 +33,6 @@ public interface Neuron {
     void addForwardConnection(Neuron neuron);
 
     void addBackwardConnection(Neuron neuron, Double weight);
+
+    double getForwardResult();
 }
