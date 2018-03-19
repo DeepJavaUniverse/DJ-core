@@ -27,6 +27,8 @@ public class ConnectedNeuron implements Neuron {
 
     private volatile double forwardResult;
 
+    private volatile double inputSignalsAverageTmp;
+
     private volatile double inputSignalsAverage;
 
     private volatile double forwardInputToActivationFunction;
@@ -60,7 +62,7 @@ public class ConnectedNeuron implements Neuron {
                             this));
         }
         inputSignals.put(from, value);
-        inputSignalsAverage += value;
+        inputSignalsAverageTmp += value;
         if (backwardConnections.size() == signalReceived) {
             forwardInputToActivationFunction
                     = backwardConnections
@@ -89,7 +91,8 @@ public class ConnectedNeuron implements Neuron {
                                         signalToSend);
                     });
             inputSignalsAverage
-                    = inputSignalsAverage / (double) signalReceived;
+                    = inputSignalsAverageTmp / (double) signalReceived;
+            inputSignalsAverageTmp = 0.;
             signalReceived = 0;
         }
     }
