@@ -88,21 +88,27 @@ public class ConnectedNeuron implements Neuron {
     @Override
     public void forwardSignalReceived(final Neuron from, final Double value) {
         signalReceived++;
-        if (!inputSignals.containsKey(from)) {
-            throw new RuntimeException(
-                    String.format(
-                            "Neuron %s is not connected to the %s",
-                            from,
-                            this));
-        }
         inputSignals.put(from, value);
         inputSignalsSum += value;
+        // The following if is the check weather current signal was the last remaining signal to receive. And if so and
+        // all incoming signals have been received the Neuron can start processing them and issue new signal himself.
         if (backwardConnections.size() == signalReceived) {
+            // 4 steps need to happen when Neuron processes the input signals:
+            // 1. Calculate input = W * X + b
+            // 2. Calculate output = f(input), where f is activation function
+            // 3. Send output to other neurons
+            // 4. invalidate state
+
+            // Step #1
+            // Calculating W * X + b - sum of all input signals, each signal multiplied on the corresponding weight.
+            // Bias is added at the end.
             forwardInputToActivationFunction
                     = backwardConnections
                         .entrySet()
                         .stream()
                         .mapToDouble(connection ->
+                                // inputSignals store the actual signal, while connection.getValue() gives you the
+                                // weight that the signal should be multiplied to. Therefore this part is X * W.
                                 inputSignals.get(connection.getKey())
                                         * connection.getValue())
                         .sum() + bias.get();
@@ -111,19 +117,24 @@ public class ConnectedNeuron implements Neuron {
                     throw new RuntimeException("Forward input to activation function is broken");
                 }
             }
+
+            // Step #2
             double signalToSend
                     = activationFunction.forward(
                             forwardInputToActivationFunction);
             forwardResult = signalToSend;
 
+            // Step #3 Since signal is calculated now we can send it to other neurons.
             forwardConnections
                     .stream()
-                    .forEach(connection -> {
+                    .forEach(connection ->
                         connection
                                 .forwardSignalReceived(
                                         ConnectedNeuron.this,
-                                        signalToSend);
-                    });
+                                        signalToSend)
+                    );
+
+            // Step #4
             inputSignalsAverage
                     = inputSignalsSum / (double) signalReceived;
             inputSignalsSum = 0.;
