@@ -1,6 +1,5 @@
 package com.kovalevskyi.java.deep.core.model.graph;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import com.kovalevskyi.java.deep.core.model.activation.ActivationFunction;
 
 import java.util.*;
@@ -45,7 +44,7 @@ public class ConnectedNeuron implements Neuron {
      * {@link #inputSignals} map the neuron is ready to start processing input signals and send signal forward.
      */
     private volatile int signalReceived;
-    private final AtomicDouble bias;
+    private final double bias;
 
     /**
      * Stores result of the latest signal that was send from the Neuron to other Neurons. This is mostly needed for the
@@ -58,7 +57,7 @@ public class ConnectedNeuron implements Neuron {
             final ActivationFunction activationFunction,
             final double bias) {
         this.activationFunction = activationFunction;
-        this.bias = new AtomicDouble(bias);
+        this.bias = bias;
     }
 
     public double getForwardResult() {
@@ -77,7 +76,7 @@ public class ConnectedNeuron implements Neuron {
                         .mapToDouble(connection ->
                                 inputSignals.get(connection.getKey())
                                         * connection.getValue())
-                        .sum() + bias.get();
+                        .sum() + bias;
             
             double signalToSend
                     = activationFunction.forward(
