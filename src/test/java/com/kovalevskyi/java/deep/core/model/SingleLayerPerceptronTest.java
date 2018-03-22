@@ -1,6 +1,6 @@
 package com.kovalevskyi.java.deep.core.model;
 
-import com.kovalevskyi.java.deep.core.model.activation.Sigmoid;
+import com.kovalevskyi.java.deep.core.model.activation.StepFunction;
 import com.kovalevskyi.java.deep.core.model.graph.ConnectedNeuron;
 import com.kovalevskyi.java.deep.core.model.graph.InputNeuron;
 import org.junit.Before;
@@ -105,7 +105,7 @@ public class SingleLayerPerceptronTest {
         outputNeuron
                 = new ConnectedNeuron.Builder()
                     .bias(bias)
-                    .activationFunction(new Sigmoid())
+                    .activationFunction(new StepFunction())
                     .build();
         inputFriend.connect(outputNeuron, wFriend);
         inputVodka.connect(outputNeuron, wVodka);
