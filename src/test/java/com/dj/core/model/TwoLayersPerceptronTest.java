@@ -1,14 +1,13 @@
-package com.kovalevskyi.java.deep.core.model;
+package com.dj.core.model;
 
-import com.kovalevskyi.java.deep.core.model.activation.Sigmoid;
-import com.kovalevskyi.java.deep.core.model.graph.ConnectedNeuron;
-import com.kovalevskyi.java.deep.core.model.graph.InputNeuron;
-import com.kovalevskyi.java.deep.core.model.activation.Relu;
+import com.dj.core.model.graph.InputNeuron;
+import com.dj.core.model.activation.Sigmoid;
+import com.dj.core.model.graph.ConnectedNeuron;
+import com.dj.core.model.activation.Relu;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Random;
-import java.util.concurrent.ForkJoinPool;
 
 import static junit.framework.TestCase.assertTrue;
 

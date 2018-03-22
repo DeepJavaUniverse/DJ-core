@@ -1,4 +1,4 @@
-package com.kovalevskyi.java.deep.core.model.loss;
+package com.dj.core.model.loss;
 
 
 public class QuadraticLoss implements Loss {

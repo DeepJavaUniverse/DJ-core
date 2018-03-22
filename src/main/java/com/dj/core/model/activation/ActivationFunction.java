@@ -1,4 +1,4 @@
-package com.kovalevskyi.java.deep.core.model.activation;
+package com.dj.core.model.activation;
 
 
 import java.io.Serializable;

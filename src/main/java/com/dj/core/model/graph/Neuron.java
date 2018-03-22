@@ -1,4 +1,4 @@
-package com.kovalevskyi.java.deep.core.model.graph;
+package com.dj.core.model.graph;
 
 
 import java.io.Serializable;

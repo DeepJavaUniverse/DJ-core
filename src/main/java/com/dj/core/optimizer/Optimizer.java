@@ -1,7 +1,6 @@
-package com.kovalevskyi.java.deep.core.optimizer;
+package com.dj.core.optimizer;
 
-import com.kovalevskyi.java.deep.core.model.graph.Neuron;
-import com.kovalevskyi.java.deep.core.model.loss.Loss;
+import com.dj.core.model.graph.Neuron;
 
 import java.util.List;
 

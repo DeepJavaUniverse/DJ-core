@@ -1,4 +1,4 @@
-package com.kovalevskyi.java.deep.core.optimizer;
+package com.dj.core.optimizer;
 
 
 public interface OptimizerProgressListener {
