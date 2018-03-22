@@ -1,6 +1,6 @@
-package com.kovalevskyi.java.deep.core.model.graph;
+package com.dj.core.model.graph;
 
-import com.kovalevskyi.java.deep.core.model.activation.ActivationFunction;
+import com.dj.core.model.activation.ActivationFunction;
 
 import java.util.*;
 

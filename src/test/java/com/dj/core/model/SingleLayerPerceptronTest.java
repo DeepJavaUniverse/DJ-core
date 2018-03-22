@@ -1,8 +1,8 @@
-package com.kovalevskyi.java.deep.core.model;
+package com.dj.core.model;
 
-import com.kovalevskyi.java.deep.core.model.activation.StepFunction;
-import com.kovalevskyi.java.deep.core.model.graph.ConnectedNeuron;
-import com.kovalevskyi.java.deep.core.model.graph.InputNeuron;
+import com.dj.core.model.activation.StepFunction;
+import com.dj.core.model.graph.ConnectedNeuron;
+import com.dj.core.model.graph.InputNeuron;
 import org.junit.Before;
 import org.junit.Test;
 
