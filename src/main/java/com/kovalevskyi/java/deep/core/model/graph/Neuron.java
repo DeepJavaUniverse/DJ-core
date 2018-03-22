@@ -1,7 +1,9 @@
 package com.kovalevskyi.java.deep.core.model.graph;
 
 
-public interface Neuron {
+import java.io.Serializable;
+
+public interface Neuron extends Serializable {
 
     /**
      * Should be called when a Neuron receives input signal from the connected neuron.
