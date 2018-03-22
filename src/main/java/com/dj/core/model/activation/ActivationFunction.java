@@ -1,7 +1,9 @@
 package com.dj.core.model.activation;
 
 
-public interface ActivationFunction {
+import java.io.Serializable;
+
+public interface ActivationFunction extends Serializable {
 
     Double forward(final Double x);
 
