@@ -1,4 +1,4 @@
-package com.kovalevskyi.java.deep.core.serializer;
+package com.dj.core.serializer;
 
 import java.io.*;
 

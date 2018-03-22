@@ -1,6 +1,7 @@
-package com.kovalevskyi.java.deep.core.serializer;
+package com.dj.core.serializer;
 
-import com.kovalevskyi.java.deep.core.model.graph.Neuron;
+
+import com.dj.core.model.graph.Neuron;
 
 import java.io.Serializable;
 import java.util.List;
