@@ -9,25 +9,59 @@ public class ConnectedNeuron implements Neuron {
 
     private final ActivationFunction activationFunction;
 
+    /**
+     * Represents the connections from the neuron to the neurons that it receives signals from. For example in the
+     * following network:
+     * NeuronA ___
+     *            \ weight1 = -0.1
+     *             \
+     * weight2 = 0.1\
+     * NeuronB ------ NeuronD
+     *              /
+     *             /
+     *            /  weight3 = 0.8
+     * NeuronC ---
+     * backwardConnections map will looks like this:
+     * NeuronA => -0.1
+     * NeuronB => 0.1
+     * NeuronC => 0.8
+     */
     private final Map<Neuron, Double> backwardConnections = new HashMap<>();
 
+    /**
+     * Represents set of the Neurons to which current neuron sends signals to. There is no need in weights here.
+     */
     private final Set<Neuron> forwardConnections = new HashSet<>();
 
     private final double learningRate;
 
     private final String name;
 
+    /**
+     * inputSignals is used to store the signals from other Neurons. Keys in this Map should be absolutely identical to
+     * the keys in the {@link #backwardConnections}. As soon as all the signals received Neuron can start processing
+     * them.
+     */
     private final Map<Neuron, Double> inputSignals = new HashMap<>();
 
     private final AtomicDouble bias;
 
     private final boolean debug;
 
+    /**
+     * Amount of the signals that has been received already. As soon as this number reaches the size of the
+     * {@link #inputSignals} map the neuron is ready to start processing input signals and send signal forward.
+     */
     private volatile int signalReceived;
 
+    /**
+     * Stores result of the latest signal that was send from the Neuron to other Neurons. This is mostly needed for the
+     * output Neurons, since they do not have any other Neurons to send signal to and in the same time there should be
+     * the way of getting this value.
+     */
     private volatile double forwardResult;
-
-    private volatile double inputSignalsAverageTmp;
+    
+    private volatile double inputSignalsSum;
 
     private volatile double inputSignalsAverage;
 
@@ -62,7 +96,7 @@ public class ConnectedNeuron implements Neuron {
                             this));
         }
         inputSignals.put(from, value);
-        inputSignalsAverageTmp += value;
+        inputSignalsSum += value;
         if (backwardConnections.size() == signalReceived) {
             forwardInputToActivationFunction
                     = backwardConnections
@@ -91,8 +125,8 @@ public class ConnectedNeuron implements Neuron {
                                         signalToSend);
                     });
             inputSignalsAverage
-                    = inputSignalsAverageTmp / (double) signalReceived;
-            inputSignalsAverageTmp = 0.;
+                    = inputSignalsSum / (double) signalReceived;
+            inputSignalsSum = 0.;
             signalReceived = 0;
         }
     }
