@@ -30,8 +30,13 @@ inputFriend.forwardSignalReceived(null, 1.);
 inputVodka.forwardSignalReceived(null, 1.);
 inputSunny.forwardSignalReceived(null, 1.);
 
+// Получаем итоговый результат и считаем ошибку:
+double result = outputNeuron.getForwardResult();
+double expectedResult = 1.;
+double errorDy = 2 * (expectedResult - result);
+
 // Посылаем обратно ошибку:
-outputNeuron.backwardSignalReceived(dA);
+outputNeuron.backwardSignalReceived(errorDy);
 ```
 
 # Помощь проекту

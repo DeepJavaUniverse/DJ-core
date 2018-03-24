@@ -11,7 +11,9 @@ DeepJava (DJ) is a DeepLearning framework. One might ask: why do we need yet ano
 
 # Usage Example
 
-## 1 Layer Perceptron With Sigmoid Activation Function 
+## 1 Layer Perceptron With Sigmoid Activation Function
+
+Network that we are building is describe in [the chapter 2](https://sandeep-krishnamurthy.gitbooks.io/deep-learning-for-java-engineers/content/chapter-2-our-first-neural-network.html).
 
 ```java
 InputNeuron inputFriend = new InputNeuron("friend");
@@ -34,8 +36,13 @@ inputFriend.forwardSignalReceived(null, 1.);
 inputVodka.forwardSignalReceived(null, 1.);
 inputSunny.forwardSignalReceived(null, 1.);
 
+// Getting result and calculating the error:
+double result = outputNeuron.getForwardResult();
+double expectedResult = 1.;
+double errorDy = 2 * (expectedResult - result);
+
 // Sending error back to the graph:
-outputNeuron.backwardSignalReceived(dA);
+outputNeuron.backwardSignalReceived(errorDy);
 ```
 
 # How To Contribute
