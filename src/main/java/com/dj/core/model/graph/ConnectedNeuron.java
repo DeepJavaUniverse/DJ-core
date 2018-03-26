@@ -7,6 +7,8 @@ import java.util.*;
 
 public class ConnectedNeuron implements Neuron {
 
+    private final Context context;
+
     private final ActivationFunction activationFunction;
 
     /**
@@ -33,8 +35,6 @@ public class ConnectedNeuron implements Neuron {
      */
     private final Set<Neuron> forwardConnections = new HashSet<>();
 
-    private final double learningRate;
-
     private final String name;
 
     /**
@@ -45,8 +45,6 @@ public class ConnectedNeuron implements Neuron {
     private final Map<Neuron, Double> inputSignals = new HashMap<>();
 
     private final AtomicDouble bias;
-
-    private final boolean debug;
 
     /**
      * Amount of the signals that has been received already. As soon as this number reaches the size of the
@@ -69,15 +67,13 @@ public class ConnectedNeuron implements Neuron {
 
     private ConnectedNeuron(
             final ActivationFunction activationFunction,
-            final double learningRate,
             final String name,
             final double bias,
-            final boolean debug) {
+            final Context context) {
         this.activationFunction = activationFunction;
-        this.learningRate = learningRate;
+        this.context = context;
         this.name = name;
         this.bias = new AtomicDouble(bias);
-        this.debug = debug;
     }
 
     @Override
@@ -112,7 +108,7 @@ public class ConnectedNeuron implements Neuron {
                                 inputSignals.get(connection.getKey())
                                         * connection.getValue())
                         .sum() + bias.get();
-            if (debug) {
+            if (context.isDebugMode()) {
                 if (brokenValue(forwardInputToActivationFunction)) {
                     throw new RuntimeException("Forward input to activation function is broken");
                 }
@@ -152,7 +148,7 @@ public class ConnectedNeuron implements Neuron {
                         forwardInputToActivationFunction);
 
         double dz = derivative * error;
-        if (debug) {
+        if (context.isDebugMode()) {
             if (brokenValue(derivative)) {
                 throw new RuntimeException("derivative value is broken");
             } else if (brokenValue(dz) || (error != 0. && dz == 0.)) {
@@ -169,8 +165,8 @@ public class ConnectedNeuron implements Neuron {
         }
         backwardConnections.keySet().forEach(conn ->
             backwardConnections.compute(conn, (k, weight) -> {
-                    final double newWeight = weight + inputSignals.get(conn) * dz * learningRate;
-                    if (debug) {
+                    final double newWeight = weight + inputSignals.get(conn) * dz * context.getLearningRate();
+                    if (context.isDebugMode()) {
                         if (brokenValue(newWeight)) {
                             throw new RuntimeException("Updated connection weight is broken");
                         }
@@ -178,7 +174,7 @@ public class ConnectedNeuron implements Neuron {
                     return newWeight;
                 }
             ));
-        bias.addAndGet(inputSignalsAverage * dz * learningRate);
+        bias.addAndGet(inputSignalsAverage * dz * context.getLearningRate());
         backwardConnections
                 .keySet()
                 .stream()
@@ -237,9 +233,7 @@ public class ConnectedNeuron implements Neuron {
 
         private ActivationFunction activationFunction;
 
-        private double learningRate = 0.2;
-
-        private boolean debug;
+        private Context context;
 
         public Builder bias(final double bias) {
             this.bias = bias;
@@ -256,27 +250,25 @@ public class ConnectedNeuron implements Neuron {
             return this;
         }
 
-        public Builder learningRate(final double learningRate) {
-            this.learningRate = learningRate;
+        public Builder context(final Context context) {
+            this.context = context;
             return this;
         }
-
-        public Builder debug(final boolean debug) {
-            this.debug = debug;
-            return this;
-        }
-
+        
         public ConnectedNeuron build() {
             if (activationFunction == null) {
                 throw new RuntimeException("ActivationFunction need to be set in order to" +
                         " create a ConnectedNeuron");
             }
+            if (context == null) {
+                throw new RuntimeException("Context need to be set in order to" +
+                        " create a ConnectedNeuron");
+            }
             return new ConnectedNeuron(
                     activationFunction,
-                    learningRate,
                     name,
                     bias,
-                    debug);
+                    context);
         }
     }
 }

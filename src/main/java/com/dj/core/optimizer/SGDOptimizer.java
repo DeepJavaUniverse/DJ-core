@@ -1,5 +1,6 @@
 package com.dj.core.optimizer;
 
+import com.dj.core.model.graph.Context;
 import com.dj.core.model.graph.Neuron;
 import com.dj.core.model.loss.Loss;
 
@@ -12,22 +13,28 @@ public class SGDOptimizer implements Optimizer {
     private final Loss loss;
     private final int numberOfEpochsToTrain;
     private final OptimizerProgressListener lossCalculatedListener;
+    private final boolean dynamicallyAdjustLearningRate;
+    private double currentLoss = Double.MIN_VALUE;
 
     public SGDOptimizer(final Loss loss,
                         final int numberOfEpochsToTrain,
-                        final OptimizerProgressListener lossCalculatedListener) {
+                        final OptimizerProgressListener lossCalculatedListener,
+                        final boolean dynamicallyAdjustLearningRate) {
         this.loss = loss;
         this.numberOfEpochsToTrain = numberOfEpochsToTrain;
         this.lossCalculatedListener = lossCalculatedListener;
+        this.dynamicallyAdjustLearningRate = dynamicallyAdjustLearningRate;
     }
 
     public SGDOptimizer(final Loss loss,
-                        final int numberOfEpochsToTrain) {
-        this(loss, numberOfEpochsToTrain, null);
+                        final int numberOfEpochsToTrain,
+                        final boolean dynamicallyAdjustLearningRate) {
+        this(loss, numberOfEpochsToTrain, null, dynamicallyAdjustLearningRate);
     }
 
     @Override
     public void train(
+            final Context context,
             final List<Neuron> inputNeurons,
             final List<Neuron> outputNeurons,
             final double[][] inputData,
@@ -35,16 +42,26 @@ public class SGDOptimizer implements Optimizer {
             final double[][] inputTestData,
             final double[][] expectedTestResult) {
          IntStream.range(0, numberOfEpochsToTrain).forEach(epoch -> {
-             if (lossCalculatedListener != null) {
+             if (lossCalculatedListener != null || dynamicallyAdjustLearningRate) {
                  final double loss = calculateLoss(
                          inputNeurons,
                          outputNeurons,
                          inputTestData,
                          expectedTestResult);
-                 lossCalculatedListener.onProgress(
-                         loss,
-                         epoch,
-                         numberOfEpochsToTrain);
+                 if (lossCalculatedListener != null) {
+                     lossCalculatedListener.onProgress(
+                             loss,
+                             epoch,
+                             numberOfEpochsToTrain);
+                 }
+                 if (dynamicallyAdjustLearningRate && currentLoss < loss) {
+                     System.out.printf("Loss have increased from: %f to %f\n", currentLoss, loss);
+                     System.out.printf("Changing learning rate from: %f to %f\n",
+                             context.getLearningRate(),
+                             context.getLearningRate() / 2.);
+                     context.setLearningRate(context.getLearningRate() / 2.);
+                 }
+                 currentLoss = loss;
              }
              IntStream.range(0, inputData.length).forEach(index -> {
                  trainIteration(

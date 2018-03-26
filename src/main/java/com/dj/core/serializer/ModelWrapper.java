@@ -1,6 +1,7 @@
 package com.dj.core.serializer;
 
 
+import com.dj.core.model.graph.Context;
 import com.dj.core.model.graph.Neuron;
 
 import java.io.Serializable;
@@ -11,11 +12,14 @@ public class ModelWrapper implements Serializable {
 
     private final List<Neuron> inputLayer;
     private final List<Neuron> outputLayer;
+    private final Context context;
 
     private ModelWrapper(final List<Neuron> inputLayer,
-                        final List<Neuron> outputLayer) {
+                         final List<Neuron> outputLayer,
+                         final Context context) {
         this.inputLayer = inputLayer;
         this.outputLayer = outputLayer;
+        this.context = context;
     }
 
     public List<Neuron> getInputLayer() {
@@ -26,11 +30,17 @@ public class ModelWrapper implements Serializable {
         return outputLayer;
     }
 
+    public Context getContext() {
+        return context;
+    }
+
     public static class Builder {
 
         private List<Neuron> inputLayer;
 
         private List<Neuron> outputLayer;
+
+        private Context context;
 
         public Builder inputLayer(final List<Neuron> inputLayer) {
             this.inputLayer = inputLayer;
@@ -42,8 +52,13 @@ public class ModelWrapper implements Serializable {
             return this;
         }
 
+        public Builder context(final Context context) {
+            this.context = context;
+            return this;
+        }
+
         public ModelWrapper build() {
-            return new ModelWrapper(this.inputLayer, this.outputLayer);
+            return new ModelWrapper(this.inputLayer, this.outputLayer, context);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.dj.core.model;
 
+import com.dj.core.model.graph.Context;
 import com.dj.core.model.graph.InputNeuron;
 import com.dj.core.model.activation.Sigmoid;
 import com.dj.core.model.graph.ConnectedNeuron;
@@ -29,9 +30,11 @@ public class TwoLayersPerceptronTest {
         inputVodka = new InputNeuron("vodka");
         inputSunny = new InputNeuron("sunny");
 
+        Context context = new Context(learningRate, false);
+
         hiddenNeuron1 = new ConnectedNeuron.Builder()
                 .activationFunction(new Relu())
-                .learningRate(learningRate)
+                .context(context)
                 .name("hidden1")
                 .build();
         inputFriend.connect(hiddenNeuron1, random.nextDouble());
@@ -40,7 +43,7 @@ public class TwoLayersPerceptronTest {
 
         hiddenNeuron2 = new ConnectedNeuron.Builder()
                 .activationFunction(new Relu())
-                .learningRate(learningRate)
+                .context(context)
                 .name("hidden2")
                 .build();
 
@@ -50,7 +53,7 @@ public class TwoLayersPerceptronTest {
 
         outputNeuron = new ConnectedNeuron.Builder()
                 .activationFunction(new Sigmoid())
-                .learningRate(learningRate)
+                .context(context)
                 .build();
         hiddenNeuron1.connect(outputNeuron, random.nextDouble());
         hiddenNeuron2.connect(outputNeuron, random.nextDouble());
