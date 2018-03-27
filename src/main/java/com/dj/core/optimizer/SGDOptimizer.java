@@ -14,7 +14,7 @@ public class SGDOptimizer implements Optimizer {
     private final int numberOfEpochsToTrain;
     private final OptimizerProgressListener lossCalculatedListener;
     private final boolean dynamicallyAdjustLearningRate;
-    private double currentLoss = Double.MIN_VALUE;
+    private double currentLoss = Double.MAX_VALUE;
 
     public SGDOptimizer(final Loss loss,
                         final int numberOfEpochsToTrain,

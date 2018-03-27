@@ -10,16 +10,20 @@ import java.util.List;
 
 public class ModelWrapper implements Serializable {
 
+    private final Context context;
     private final List<Neuron> inputLayer;
     private final List<Neuron> outputLayer;
-    private final Context context;
 
-    private ModelWrapper(final List<Neuron> inputLayer,
-                         final List<Neuron> outputLayer,
-                         final Context context) {
+    private ModelWrapper(final Context context,
+                         final List<Neuron> inputLayer,
+                         final List<Neuron> outputLayer) {
+        this.context = context;
         this.inputLayer = inputLayer;
         this.outputLayer = outputLayer;
-        this.context = context;
+    }
+
+    public Context getContext() {
+        return context;
     }
 
     public List<Neuron> getInputLayer() {
@@ -30,17 +34,18 @@ public class ModelWrapper implements Serializable {
         return outputLayer;
     }
 
-    public Context getContext() {
-        return context;
-    }
-
     public static class Builder {
+
+        private Context context;
 
         private List<Neuron> inputLayer;
 
         private List<Neuron> outputLayer;
 
-        private Context context;
+        public Builder context(final Context context) {
+            this.context = context;
+            return this;
+        }
 
         public Builder inputLayer(final List<Neuron> inputLayer) {
             this.inputLayer = inputLayer;
@@ -52,13 +57,8 @@ public class ModelWrapper implements Serializable {
             return this;
         }
 
-        public Builder context(final Context context) {
-            this.context = context;
-            return this;
-        }
-
         public ModelWrapper build() {
-            return new ModelWrapper(this.inputLayer, this.outputLayer, context);
+            return new ModelWrapper(this.context, this.inputLayer, this.outputLayer);
         }
     }
 }
