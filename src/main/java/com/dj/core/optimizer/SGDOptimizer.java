@@ -13,23 +13,22 @@ public class SGDOptimizer implements Optimizer {
     private final Loss loss;
     private final int numberOfEpochsToTrain;
     private final OptimizerProgressListener lossCalculatedListener;
-    private final boolean dynamicallyAdjustLearningRate;
+    private final double adjustLearningRateBy;
     private double currentLoss = Double.MAX_VALUE;
 
     public SGDOptimizer(final Loss loss,
                         final int numberOfEpochsToTrain,
                         final OptimizerProgressListener lossCalculatedListener,
-                        final boolean dynamicallyAdjustLearningRate) {
+                        final double adjustLearningRateBy) {
         this.loss = loss;
         this.numberOfEpochsToTrain = numberOfEpochsToTrain;
         this.lossCalculatedListener = lossCalculatedListener;
-        this.dynamicallyAdjustLearningRate = dynamicallyAdjustLearningRate;
+        this.adjustLearningRateBy = adjustLearningRateBy;
     }
 
     public SGDOptimizer(final Loss loss,
-                        final int numberOfEpochsToTrain,
-                        final boolean dynamicallyAdjustLearningRate) {
-        this(loss, numberOfEpochsToTrain, null, dynamicallyAdjustLearningRate);
+                        final int numberOfEpochsToTrain) {
+        this(loss, numberOfEpochsToTrain, null, 1.0);
     }
 
     @Override
@@ -42,7 +41,7 @@ public class SGDOptimizer implements Optimizer {
             final double[][] inputTestData,
             final double[][] expectedTestResult) {
          IntStream.range(0, numberOfEpochsToTrain).forEach(epoch -> {
-             if (lossCalculatedListener != null || dynamicallyAdjustLearningRate) {
+             if (lossCalculatedListener != null || adjustLearningRateBy != 1.) {
                  final double loss = calculateLoss(
                          inputNeurons,
                          outputNeurons,
@@ -54,12 +53,12 @@ public class SGDOptimizer implements Optimizer {
                              epoch,
                              numberOfEpochsToTrain);
                  }
-                 if (dynamicallyAdjustLearningRate && currentLoss < loss) {
+                 if (adjustLearningRateBy != 1. && currentLoss < loss) {
                      System.out.printf("Loss have increased from: %f to %f\n", currentLoss, loss);
                      System.out.printf("Changing learning rate from: %f to %f\n",
                              context.getLearningRate(),
-                             context.getLearningRate() / 2.);
-                     context.setLearningRate(context.getLearningRate() / 2.);
+                             context.getLearningRate() * adjustLearningRateBy);
+                     context.setLearningRate(context.getLearningRate() * adjustLearningRateBy);
                  }
                  currentLoss = loss;
              }
