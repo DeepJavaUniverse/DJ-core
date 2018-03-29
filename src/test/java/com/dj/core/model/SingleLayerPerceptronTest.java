@@ -1,5 +1,6 @@
 package com.dj.core.model;
 
+import com.dj.core.model.graph.Context;
 import com.dj.core.model.graph.InputNeuron;
 import com.dj.core.model.activation.Sigmoid;
 import com.dj.core.model.graph.ConnectedNeuron;
@@ -182,11 +183,12 @@ public class SingleLayerPerceptronTest {
                                                  double wSunny,
                                                  double bias,
                                                  double learningRate) {
+        Context context = new Context(learningRate, false);
         outputNeuron
                 = new ConnectedNeuron.Builder()
                     .bias(bias)
                     .activationFunction(new Sigmoid())
-                    .learningRate(learningRate)
+                    .context(context)
                     .build();
         inputFriend.connect(outputNeuron, wFriend);
         inputVodka.connect(outputNeuron, wVodka);

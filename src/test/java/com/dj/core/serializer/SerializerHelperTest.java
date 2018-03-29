@@ -3,6 +3,7 @@ package com.dj.core.serializer;
 
 import com.dj.core.model.activation.Sigmoid;
 import com.dj.core.model.graph.ConnectedNeuron;
+import com.dj.core.model.graph.Context;
 import com.dj.core.model.graph.InputNeuron;
 import com.dj.core.model.graph.Neuron;
 import org.junit.Test;
@@ -21,9 +22,11 @@ public class SerializerHelperTest {
 
     @Test
     public void testSerializeToFileAndDeserialize() {
+        Context context = new Context(.2, false);
         ConnectedNeuron outputNeuron = new ConnectedNeuron.Builder()
                 .bias(-1.)
                 .activationFunction(new Sigmoid())
+                .context(context)
                 .build();
         InputNeuron inputFriend = new InputNeuron();
         InputNeuron inputVodka = new InputNeuron();
