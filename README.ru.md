@@ -10,6 +10,10 @@ DeepJava (DJ) - фреймворк глубокого обучения на Java
 ## Однослойный персептрон с сигмоидом в качестве функции активации
 
 ```java
+Context context = new Context(
+         /* learningRate */ 0.2, 
+         /* debug mode */ false);
+
 InputNeuron inputFriend = new InputNeuron("friend");
 InputNeuron inputVodka = new InputNeuron("vodka");
 InputNeuron inputSunny = new InputNeuron("sunny");
@@ -18,7 +22,7 @@ ConnectedNeuron outputNeuron
         = new ConnectedNeuron.Builder()
             .bias(0.1)
             .activationFunction(new Sigmoid())
-            .learningRate(0.2)
+            .context(context)
             .build();
 
 inputFriend.connect(outputNeuron, wFriend);
