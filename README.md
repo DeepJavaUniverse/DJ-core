@@ -16,6 +16,10 @@ DeepJava (DJ) is a DeepLearning framework. One might ask: why do we need yet ano
 Network that we are building is describe in [the chapter 2](https://sandeep-krishnamurthy.gitbooks.io/deep-learning-for-java-engineers/content/chapter-2-our-first-neural-network.html).
 
 ```java
+Context context = new Context(
+         /* learningRate */ 0.2, 
+         /* debug mode */ false);
+
 InputNeuron inputFriend = new InputNeuron("friend");
 InputNeuron inputVodka = new InputNeuron("vodka");
 InputNeuron inputSunny = new InputNeuron("sunny");
@@ -24,7 +28,7 @@ ConnectedNeuron outputNeuron
         = new ConnectedNeuron.Builder()
             .bias(0.1)
             .activationFunction(new Sigmoid())
-            .learningRate(0.2)
+            .context(context)
             .build();
 
 inputFriend.connect(outputNeuron, wFriend);
