@@ -9,8 +9,8 @@ public class SerializerHelper {
     public static void serializeToFile(
             final ModelWrapper model,
             final String path) {
-        try(FileOutputStream fileOut = new FileOutputStream(path);
-            ObjectOutputStream outStream = new ObjectOutputStream(fileOut)) {
+        try(var fileOut = new FileOutputStream(path);
+            var outStream = new ObjectOutputStream(fileOut)) {
             outStream.writeObject(model);
         } catch (IOException  e) {
             e.printStackTrace();
@@ -20,8 +20,8 @@ public class SerializerHelper {
 
     public static ModelWrapper deserializeFromFile(
             final String path) {
-        try(FileInputStream fileIn = new FileInputStream(path);
-            ObjectInputStream outStream = new ObjectInputStream(fileIn)) {
+        try(var fileIn = new FileInputStream(path);
+            var outStream = new ObjectInputStream(fileIn)) {
             return (ModelWrapper) outStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();

@@ -115,7 +115,7 @@ public class ConnectedNeuron implements Neuron {
             }
 
             // Step #2
-            double signalToSend
+            final double signalToSend
                     = activationFunction.forward(
                             forwardInputToActivationFunction);
             forwardResult = signalToSend;
@@ -147,7 +147,7 @@ public class ConnectedNeuron implements Neuron {
                 = activationFunction.backward(
                         forwardInputToActivationFunction);
 
-        double dz = derivative * error;
+        final double dz = derivative * error;
         if (context.isDebugMode()) {
             if (brokenValue(derivative)) {
                 throw new RuntimeException("derivative value is broken");
