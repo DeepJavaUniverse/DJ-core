@@ -30,7 +30,7 @@ public class TwoLayersPerceptronTest {
         inputVodka = new InputNeuron("vodka");
         inputSunny = new InputNeuron("sunny");
 
-        Context context = new Context(learningRate, false);
+        var context = new Context(learningRate, false);
 
         hiddenNeuron1 = new ConnectedNeuron.Builder()
                 .activationFunction(new Relu())
@@ -61,7 +61,7 @@ public class TwoLayersPerceptronTest {
 
     @Test
     public void testTraining() throws Exception {
-        double error = .0;
+        var error = 0.;
         for (int i = 0; i < 1400; i++) {
             error =
                     trainIteration(
@@ -117,8 +117,8 @@ public class TwoLayersPerceptronTest {
         inputFriend.forwardSignalReceived(null, friendInput);
         inputVodka.forwardSignalReceived(null, vodkaInput);
         inputSunny.forwardSignalReceived(null, sunnyInput);
-        double actualResult = outputNeuron.getForwardResult();
-        double errorDy = 2 * (expectedResult - actualResult);
+        var actualResult = outputNeuron.getForwardResult();
+        var errorDy = 2. * (expectedResult - actualResult);
         outputNeuron.backwardSignalReceived(errorDy);
         System.out.printf("For: F: %f V: %f S: %f Expected: %f Actual: %f\n",
                 friendInput,

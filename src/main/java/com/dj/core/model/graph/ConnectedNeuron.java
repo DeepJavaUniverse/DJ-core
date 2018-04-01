@@ -119,7 +119,7 @@ public class ConnectedNeuron implements Neuron {
             }
 
             // Step #2
-            double signalToSend
+            final var signalToSend
                     = activationFunction.forward(
                             forwardInputToActivationFunction);
             forwardResult = signalToSend;
@@ -147,11 +147,11 @@ public class ConnectedNeuron implements Neuron {
         if (!forwardCalculated()) {
             throw new RuntimeException("Forward calculation is not yet completed");
         }
-        final double derivative
+        final var derivative
                 = activationFunction.backward(
                         forwardInputToActivationFunction);
 
-        double dz = derivative * error;
+        final var dz = derivative * error;
         if (context.isDebugMode()) {
             if (brokenValue(derivative)) {
                 throw new RuntimeException("derivative value is broken");
@@ -168,7 +168,7 @@ public class ConnectedNeuron implements Neuron {
             return;
         }
 
-        final double dzLearningRate = dz * context.getLearningRate();
+        final var dzLearningRate = dz * context.getLearningRate();
         backwardConnections = backwardConnections.add(inputSignals.scalarMultiply(dzLearningRate));
 
         bias.addAndGet(inputSignalsAverage * dz * context.getLearningRate());

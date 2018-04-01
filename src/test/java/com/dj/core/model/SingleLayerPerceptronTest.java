@@ -108,14 +108,14 @@ public class SingleLayerPerceptronTest {
 
     @Test
     public void testTraining() throws Exception {
-        Random random = new Random();
+        var random = new Random();
         initiateOutputNeuronWithWeights(
                 random.nextDouble(),
                 random.nextDouble(),
                 random.nextDouble(),
                 random.nextDouble(),
                 0.05);
-        double error = 0;
+        var error = 0.;
         for (int i = 0; i < 1000; i++) {
             error =
                     trainIteration(
@@ -171,8 +171,8 @@ public class SingleLayerPerceptronTest {
         inputFriend.forwardSignalReceived(null, friendInput);
         inputVodka.forwardSignalReceived(null, vodkaInput);
         inputSunny.forwardSignalReceived(null, sunnyInput);
-        double actualResult = outputNeuron.getForwardResult();
-        double dA = expectedResult - actualResult;
+        var actualResult = outputNeuron.getForwardResult();
+        var dA = expectedResult - actualResult;
         dA = dA * dA * dA;
         outputNeuron.backwardSignalReceived(dA);
         return expectedResult - actualResult;
@@ -183,7 +183,7 @@ public class SingleLayerPerceptronTest {
                                                  double wSunny,
                                                  double bias,
                                                  double learningRate) {
-        Context context = new Context(learningRate, false);
+        var context = new Context(learningRate, false);
         outputNeuron
                 = new ConnectedNeuron.Builder()
                     .bias(bias)
