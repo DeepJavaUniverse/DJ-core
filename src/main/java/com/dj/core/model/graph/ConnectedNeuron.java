@@ -9,6 +9,7 @@ import java.util.*;
 public class ConnectedNeuron implements Neuron {
 
     private final static int VECTOR_ROWS_COUNT = 1;
+
     private final static int VECTOR_ROW_INDEX = 0;
 
     private final Context context;
@@ -167,7 +168,7 @@ public class ConnectedNeuron implements Neuron {
             return;
         }
 
-        double dzLearningRate = dz * context.getLearningRate();
+        final double dzLearningRate = dz * context.getLearningRate();
         backwardConnections = backwardConnections.add(inputSignals.scalarMultiply(dzLearningRate));
 
         bias.addAndGet(inputSignalsAverage * dz * context.getLearningRate());
@@ -194,13 +195,12 @@ public class ConnectedNeuron implements Neuron {
         inputSignals = addToTensor(inputSignals, nextIndex, Double.NaN);
     }
 
-    private RealMatrix addToTensor(RealMatrix tensor, int newColumnIndex, double value) {
-        RealMatrix oldTensor = tensor;
-        tensor = new Array2DRowRealMatrix(VECTOR_ROWS_COUNT, newColumnIndex + 1);
+    private RealMatrix addToTensor(final RealMatrix oldTensor, final int newColumnIndex, final double value) {
+        RealMatrix newTensor = new Array2DRowRealMatrix(VECTOR_ROWS_COUNT, newColumnIndex + 1);
         if (oldTensor.getColumnDimension() != 0)
-            tensor.setSubMatrix(oldTensor.getData(), 0, 0);
-        tensor.setEntry(VECTOR_ROW_INDEX, newColumnIndex, value);
-        return tensor;
+            newTensor.setSubMatrix(oldTensor.getData(), 0, 0);
+        newTensor.setEntry(VECTOR_ROW_INDEX, newColumnIndex, value);
+        return newTensor;
     }
 
     @Override
@@ -234,7 +234,7 @@ public class ConnectedNeuron implements Neuron {
         return signalReceived == 0;
     }
 
-    private int neuronIndex(Neuron n) {
+    private int neuronIndex(final Neuron n) {
         return neuronIndexes.get(n);
     }
 
