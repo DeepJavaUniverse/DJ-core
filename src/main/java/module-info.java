@@ -5,4 +5,5 @@ module com.kovalevskyi.java.deep.core {
     exports com.dj.core.optimizer;
 
     requires com.google.common;
+    requires commons.math3;
 }
