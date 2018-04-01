@@ -115,7 +115,7 @@ public class SingleLayerPerceptronTest {
                 random.nextDouble(),
                 random.nextDouble(),
                 0.05);
-        double error = 0.;
+        var error = 0.;
         for (int i = 0; i < 1000; i++) {
             error =
                     trainIteration(
