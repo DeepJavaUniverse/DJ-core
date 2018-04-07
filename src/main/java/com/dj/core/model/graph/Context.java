@@ -8,13 +8,16 @@ public class Context implements Serializable {
 
     private boolean debugMode;
 
-    public Context(final double learningRate, final boolean debugMode) {
+    private int batchSize;
+
+    public Context(final double learningRate, final boolean debugMode, int batchSize) {
         this.learningRate = learningRate;
         this.debugMode = debugMode;
+        this.batchSize= batchSize;
     }
 
     public Context() {
-        this(.2, false);
+        this(.2, false, 1);
     }
 
 
@@ -32,5 +35,13 @@ public class Context implements Serializable {
 
     public void setDebugMode(final boolean debugMode) {
         this.debugMode = debugMode;
+    }
+
+    public int getBatchSize() {
+        return batchSize;
+    }
+
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
     }
 }

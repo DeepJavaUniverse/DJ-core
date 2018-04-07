@@ -23,7 +23,7 @@ public interface Neuron extends Serializable {
      *
      * @param from , Neuron that sends the signal.
      */
-    void forwardSignalReceived(Neuron from, Double value);
+    void forwardSignalReceived(Neuron from, Double... values);
 
     void backwardSignalReceived(Double value);
 
@@ -36,5 +36,5 @@ public interface Neuron extends Serializable {
 
     void addBackwardConnection(Neuron neuron, Double weight);
 
-    double getForwardResult();
+    double[] getForwardResult();
 }

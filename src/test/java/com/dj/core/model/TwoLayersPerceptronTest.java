@@ -5,10 +5,12 @@ import com.dj.core.model.graph.InputNeuron;
 import com.dj.core.model.activation.Sigmoid;
 import com.dj.core.model.graph.ConnectedNeuron;
 import com.dj.core.model.activation.Relu;
+import com.dj.core.utils.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Random;
+import java.util.stream.IntStream;
 
 import static junit.framework.TestCase.assertTrue;
 
@@ -26,11 +28,12 @@ public class TwoLayersPerceptronTest {
     public void setUp() {
         Random random = new Random();
         double learningRate = 0.05;
+        int batchSize = 4;
         inputFriend = new InputNeuron("friend");
         inputVodka = new InputNeuron("vodka");
         inputSunny = new InputNeuron("sunny");
 
-        var context = new Context(learningRate, false);
+        var context = new Context(learningRate, false, batchSize);
 
         hiddenNeuron1 = new ConnectedNeuron.Builder()
                 .activationFunction(new Relu())
@@ -65,67 +68,47 @@ public class TwoLayersPerceptronTest {
         for (int i = 0; i < 1400; i++) {
             error =
                     trainIteration(
-                            1.,
-                            1.,
-                            1.,
-                            1.)
+                            new Double[] { 1., 1., 1., 0. },
+                            new Double[] { 1., 1., 0., 1. },
+                            new Double[] { 1., 0., 1., 1. },
+                            new Double[] { 1., 0., 1., 1. })
                     + trainIteration(
-                            1.,
-                            1.,
-                            0.,
-                            0.)
-                    + trainIteration(
-                            1.,
-                            0.,
-                            1.,
-                            1.)
-                    + trainIteration(
-                            0.,
-                            1.,
-                            1.,
-                            1.)
-                    + trainIteration(
-                            0.,
-                            0.,
-                            1.,
-                            0.)
-                    + trainIteration(
-                            0.,
-                            1.,
-                            0.,
-                            0.)
-                    + trainIteration(
-                            1.,
-                            0.,
-                            0.,
-                            0.)
-                    + trainIteration(
-                            0.,
-                            0.,
-                            0.,
-                            0.);
+                            new Double[] { 0., 0., 1., 0. },
+                            new Double[] { 0., 1., 0., 0. },
+                            new Double[] { 1., 0., 0., 0. },
+                            new Double[] { 0., 0., 0., 0. });
             error = error / 8.;
             System.out.printf("ERROR: %s \n", error);
         }
         assertTrue(Math.abs(error) < 0.15);
     }
 
-    private double trainIteration(double friendInput,
-                                double vodkaInput,
-                                double sunnyInput,
-                                double expectedResult) throws Exception {
+    private double trainIteration(Double[] friendInput,
+                                Double[] vodkaInput,
+                                Double[] sunnyInput,
+                                Double[] expectedResult) throws Exception {
         inputFriend.forwardSignalReceived(null, friendInput);
         inputVodka.forwardSignalReceived(null, vodkaInput);
         inputSunny.forwardSignalReceived(null, sunnyInput);
         var actualResult = outputNeuron.getForwardResult();
-        var errorDy = 2. * (expectedResult - actualResult);
-        outputNeuron.backwardSignalReceived(errorDy);
-        System.out.printf("For: F: %f V: %f S: %f Expected: %f Actual: %f\n",
-                friendInput,
-                vodkaInput,
-                sunnyInput,
-                expectedResult,
-                actualResult);
-        return expectedResult - actualResult;
+
+        var diff = 0.;
+        for (var i = 0; i < expectedResult.length; i++) {
+            var localDiff = expectedResult[i] - actualResult[i];
+            var errorDy = 2. * localDiff;
+            outputNeuron.backwardSignalReceived(errorDy);
+            diff +=localDiff;
+        }
+
+        IntStream.range(0, friendInput.length).forEach(i -> {
+            System.out.printf("For: F: %f V: %f S: %f Expected: %f Actual: %f\n",
+                    friendInput[i],
+                    vodkaInput[i],
+                    sunnyInput[i],
+                    expectedResult[i],
+                    actualResult[i]);
+        });
+
+        return diff;
     }
 }

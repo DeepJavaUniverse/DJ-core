@@ -38,12 +38,12 @@ public class SingleLayerPerceptronTest {
         inputFriend.forwardSignalReceived(null, 1.);
         inputVodka.forwardSignalReceived(null, 1.);
         inputSunny.forwardSignalReceived(null, 1.);
-        assertTrue(outputNeuron.getForwardResult() > .7);
+        assertTrue(outputNeuron.getForwardResult()[0] > .7);
 
         inputFriend.forwardSignalReceived(null, 0.);
         inputVodka.forwardSignalReceived(null, 0.);
         inputSunny.forwardSignalReceived(null, 0.);
-        assertTrue(outputNeuron.getForwardResult() < .3);
+        assertTrue(outputNeuron.getForwardResult()[0] < .3);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class SingleLayerPerceptronTest {
         inputFriend.forwardSignalReceived(null, 1.);
         inputVodka.forwardSignalReceived(null, 1.);
         inputSunny.forwardSignalReceived(null, 1.);
-        assertTrue(outputNeuron.getForwardResult() > .7);
+        assertTrue(outputNeuron.getForwardResult()[0] > .7);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class SingleLayerPerceptronTest {
         inputFriend.forwardSignalReceived(null, 0.);
         inputVodka.forwardSignalReceived(null, 0.);
         inputSunny.forwardSignalReceived(null, 0.);
-        assertTrue(outputNeuron.getForwardResult() < .3);
+        assertTrue(outputNeuron.getForwardResult()[0] < .3);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class SingleLayerPerceptronTest {
         inputFriend.forwardSignalReceived(null, 1.);
         inputVodka.forwardSignalReceived(null, 0.);
         inputSunny.forwardSignalReceived(null, 1.);
-        assertTrue(outputNeuron.getForwardResult() > .5);
+        assertTrue(outputNeuron.getForwardResult()[0] > .5);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class SingleLayerPerceptronTest {
         inputFriend.forwardSignalReceived(null,0.);
         inputVodka.forwardSignalReceived(null,0.);
         inputSunny.forwardSignalReceived(null,1.);
-        assertTrue(outputNeuron.getForwardResult() <= .5);
+        assertTrue(outputNeuron.getForwardResult()[0] <= .5);
     }
 
     @Test
@@ -172,10 +172,10 @@ public class SingleLayerPerceptronTest {
         inputVodka.forwardSignalReceived(null, vodkaInput);
         inputSunny.forwardSignalReceived(null, sunnyInput);
         var actualResult = outputNeuron.getForwardResult();
-        var dA = expectedResult - actualResult;
+        var dA = expectedResult - actualResult[0];
         dA = dA * dA * dA;
         outputNeuron.backwardSignalReceived(dA);
-        return expectedResult - actualResult;
+        return expectedResult - actualResult[0];
     }
 
     private void initiateOutputNeuronWithWeights(double wFriend,
@@ -183,7 +183,7 @@ public class SingleLayerPerceptronTest {
                                                  double wSunny,
                                                  double bias,
                                                  double learningRate) {
-        var context = new Context(learningRate, false);
+        var context = new Context(learningRate, false, 4);
         outputNeuron
                 = new ConnectedNeuron.Builder()
                     .bias(bias)

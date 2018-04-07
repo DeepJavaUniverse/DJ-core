@@ -22,7 +22,7 @@ public class SerializerHelperTest {
 
     @Test
     public void testSerializeToFileAndDeserialize() {
-        Context context = new Context(.2, false);
+        Context context = new Context(.2, false, 2);
         ConnectedNeuron outputNeuron = new ConnectedNeuron.Builder()
                 .bias(-1.)
                 .activationFunction(new Sigmoid())
@@ -40,7 +40,7 @@ public class SerializerHelperTest {
         inputFriend.forwardSignalReceived(null, 1.);
         inputVodka.forwardSignalReceived(null, 1.);
         inputSunny.forwardSignalReceived(null, 1.);
-        assertTrue(outputNeuron.getForwardResult() > .7);
+        assertTrue(outputNeuron.getForwardResult()[0] > .7);
 
         List<Neuron> inputLayer = List.of(inputFriend, inputVodka, inputSunny);
         List<Neuron> outputLayer = List.of(outputNeuron);
@@ -71,6 +71,6 @@ public class SerializerHelperTest {
         inputFriendToTest.forwardSignalReceived(null, 1.);
         inputVodkaToTest.forwardSignalReceived(null, 1.);
         inputSunnyToTest.forwardSignalReceived(null, 1.);
-        assertTrue(outputNeuronToTest.getForwardResult() > .7);
+        assertTrue(outputNeuronToTest.getForwardResult()[0] > .7);
     }
 }
