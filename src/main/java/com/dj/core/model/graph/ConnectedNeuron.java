@@ -1,16 +1,14 @@
 package com.dj.core.model.graph;
 
 import com.dj.core.model.activation.ActivationFunction;
-import com.dj.core.model.visitor.SimpleRealMatrixChangingVisitor;
-import com.dj.core.utils.ArrayUtils;
 import com.google.common.util.concurrent.AtomicDouble;
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-import org.apache.commons.math3.linear.*;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealMatrixChangingVisitor;
 
 import java.util.*;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class ConnectedNeuron implements Neuron {
 
@@ -99,13 +97,10 @@ public class ConnectedNeuron implements Neuron {
     }
 
     @Override
-    public void forwardSignalReceived(final Neuron from, final Double... values) {
+    public void forwardSignalReceived(final Neuron from, final double... values) {
         signalReceived++;
-        var valuesPrimitives = ArrayUtils.toPrimitive(values);
-        inputSignals.setColumn(neuronIndex(from), valuesPrimitives);
-        inputSignalsSum += DoubleStream.of(valuesPrimitives)
-                .average()
-                .orElse(0.);
+        inputSignals.setColumn(neuronIndex(from), values);
+        inputSignalsSum += DoubleStream.of(values).sum();
 
         // The following if is the check weather current signal was the last remaining signal to receive. And if so and
         // all incoming signals have been received the Neuron can start processing them and issue new signal himself.
@@ -124,12 +119,12 @@ public class ConnectedNeuron implements Neuron {
                     .scalarAdd(bias.get());
 
             if (context.isDebugMode()) {
-                DoubleStream.of(forwardInputToActivationFunction.getRow(VECTOR_ROW_INDEX))
-                        .forEach(value -> {
-                            if (brokenValue(value)) {
-                                throw new RuntimeException("Forward input to activation function is broken");
-                            }
-                        });
+                OptionalDouble brokenValue = DoubleStream.of(forwardInputToActivationFunction.getRow(VECTOR_ROW_INDEX))
+                        .filter(ConnectedNeuron::brokenValue)
+                        .findAny();
+                if (brokenValue.isPresent())
+                    throw new RuntimeException("Forward input to activation function is broken: "
+                            + brokenValue.getAsDouble());
             }
 
             // Step #2
@@ -150,48 +145,42 @@ public class ConnectedNeuron implements Neuron {
                             connection
                                     .forwardSignalReceived(
                                             ConnectedNeuron.this,
-                                            ArrayUtils.toObject(signalToSend.getRow(VECTOR_ROW_INDEX)))
+                                            signalToSend.getRow(VECTOR_ROW_INDEX))
                     );
 
             // Step #4
             inputSignalsAverage
-                    = inputSignalsSum / (double) signalReceived;
+                    = inputSignalsSum / (double) (signalReceived * context.getBatchSize());
             inputSignalsSum = 0.;
             signalReceived = 0;
         }
     }
 
     @Override
-    public void backwardSignalReceived(final Double error) {
+    public void backwardSignalReceived(final double... error) {
         if (!forwardCalculated()) {
             throw new RuntimeException("Forward calculation is not yet completed");
         }
-        var forwardInputToActivationFunctionAverage
-                = DoubleStream.of(forwardInputToActivationFunction.getRow(VECTOR_ROW_INDEX))
-                    .average()
-                    .orElse(0.);
-        final var derivative
-                = activationFunction.backward(forwardInputToActivationFunctionAverage);
 
-        final var dz = derivative * error;
-        if (context.isDebugMode()) {
-            if (brokenValue(derivative)) {
-                throw new RuntimeException("derivative value is broken");
-            } else if (brokenValue(dz) || (error != 0. && dz == 0.)) {
-                throw new RuntimeException("dz value is broken");
-            } else if (brokenValue(error)) {
-                throw new RuntimeException("error value is broken");
+        // Calculate dz tensor (vector and its length equals to the batch size)
+        // Multiply a derivative of each value of the {@link #forwardInputToActivationFunction}
+        // to the appropriate error
+        var dz = new Array2DRowRealMatrix(forwardInputToActivationFunction.getRow(VECTOR_ROW_INDEX));
+        dz.walkInRowOrder(new SimpleRealMatrixChangingVisitor() {
+            @Override
+            public double visit(int row, int column, double value) {
+                return activationFunction.backward(value) * error[column];
             }
-        }
-        if (error == 0.) {
-            return;
-        }
-        if (derivative == 0.) {
-            return;
-        }
+        });
 
-        final var dzLearningRate = dz * context.getLearningRate();
-        inputSignals = inputSignals.scalarMultiply(dzLearningRate);
+        final var dzLearningRate = dz.scalarMultiply(context.getLearningRate());
+        IntStream.range(0, dzLearningRate.getColumnDimension()).forEach(i -> {
+            inputSignals = inputSignals.scalarMultiply(dzLearningRate.getEntry(VECTOR_ROW_INDEX, i));
+        });
+
+        // Calculate an average value of input signals of a particular neuron.
+        // It is necessary to add these average values to the {@link #backwardConnections} -
+        // to change weights of backward connected neurons.
         final var inputSignalsAverageVector = new Array2DRowRealMatrix(VECTOR_ROWS_COUNT, inputSignals.getColumnDimension());
         IntStream.range(0, inputSignals.getColumnDimension()).forEach(i -> {
             final var entry = DoubleStream.of(inputSignals.getColumn(i)).average().orElse(0.);
@@ -200,14 +189,18 @@ public class ConnectedNeuron implements Neuron {
 
         backwardConnections = backwardConnections.add(inputSignalsAverageVector);
 
-        bias.addAndGet(inputSignalsAverage * dz * context.getLearningRate());
+        IntStream.range(0, dzLearningRate.getColumnDimension()).forEach(i -> {
+            bias.addAndGet(inputSignalsAverage * dz.getEntry(VECTOR_ROW_INDEX, i) * context.getLearningRate());
+        });
+
+        final var dzMultiplication = DoubleStream.of(dz.getRow(VECTOR_ROW_INDEX)).reduce(1, (a, b) -> a * b);
         neuronIndexes
                 .entrySet()
                 .stream()
                 .forEach(neuronIndex ->
                         neuronIndex.getKey().backwardSignalReceived(
                                 backwardConnections
-                                        .getEntry(VECTOR_ROW_INDEX, neuronIndex.getValue()) * dz));
+                                        .getEntry(VECTOR_ROW_INDEX, neuronIndex.getValue()) * dzMultiplication));
     }
 
     @Override
@@ -314,6 +307,17 @@ public class ConnectedNeuron implements Neuron {
                     name,
                     bias,
                     context);
+        }
+    }
+
+    private abstract class SimpleRealMatrixChangingVisitor implements RealMatrixChangingVisitor {
+
+        @Override
+        public void start(int rows, int columns, int startRow, int endRow, int startColumn, int endColumn) { }
+
+        @Override
+        public double end() {
+            return 0;
         }
     }
 }

@@ -1,11 +1,10 @@
 package com.dj.core.model;
 
-import com.dj.core.model.graph.Context;
-import com.dj.core.model.graph.InputNeuron;
+import com.dj.core.model.activation.Relu;
 import com.dj.core.model.activation.Sigmoid;
 import com.dj.core.model.graph.ConnectedNeuron;
-import com.dj.core.model.activation.Relu;
-import com.dj.core.utils.ArrayUtils;
+import com.dj.core.model.graph.Context;
+import com.dj.core.model.graph.InputNeuron;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -68,25 +67,25 @@ public class TwoLayersPerceptronTest {
         for (int i = 0; i < 1400; i++) {
             error =
                     trainIteration(
-                            new Double[] { 1., 1., 1., 0. },
-                            new Double[] { 1., 1., 0., 1. },
-                            new Double[] { 1., 0., 1., 1. },
-                            new Double[] { 1., 0., 1., 1. })
+                            new double[] { 1., 1., 1., 0. },
+                            new double[] { 1., 1., 0., 1. },
+                            new double[] { 1., 0., 1., 1. },
+                            new double[] { 1., 0., 1., 1. })
                     + trainIteration(
-                            new Double[] { 0., 0., 1., 0. },
-                            new Double[] { 0., 1., 0., 0. },
-                            new Double[] { 1., 0., 0., 0. },
-                            new Double[] { 0., 0., 0., 0. });
+                            new double[] { 0., 0., 1., 0. },
+                            new double[] { 0., 1., 0., 0. },
+                            new double[] { 1., 0., 0., 0. },
+                            new double[] { 0., 0., 0., 0. });
             error = error / 8.;
             System.out.printf("ERROR: %s \n", error);
         }
         assertTrue(Math.abs(error) < 0.15);
     }
 
-    private double trainIteration(Double[] friendInput,
-                                Double[] vodkaInput,
-                                Double[] sunnyInput,
-                                Double[] expectedResult) throws Exception {
+    private double trainIteration(double[] friendInput,
+                                double[] vodkaInput,
+                                double[] sunnyInput,
+                                double[] expectedResult) throws Exception {
         inputFriend.forwardSignalReceived(null, friendInput);
         inputVodka.forwardSignalReceived(null, vodkaInput);
         inputSunny.forwardSignalReceived(null, sunnyInput);

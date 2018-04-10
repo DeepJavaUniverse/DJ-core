@@ -85,13 +85,12 @@ public class SGDOptimizer implements Optimizer {
         );
         IntStream.range(0, outputNeurons.size()).forEach(
                 i -> {
-//                    final double actualValue = outputNeurons.get(i).getForwardResult();
-//                    final double expectedResult = expectedResults[i];
-//                    outputNeurons
-//                            .get(i)
-//                            .backwardSignalReceived(
-//                                    loss
-//                                            .derivative(actualValue, expectedResult));
+                    final double[] actualValues = outputNeurons.get(i).getForwardResult();
+                    outputNeurons
+                            .get(i)
+                            .backwardSignalReceived(
+                                    loss
+                                            .derivative(actualValues, expectedResults));
                 }
         );
     }
@@ -101,26 +100,22 @@ public class SGDOptimizer implements Optimizer {
             final List<Neuron> outputNeurons,
             final double[][] inputData,
             final double[][] expectedResults) {
-        return 0.;
-//        return IntStream
-//                .range(0, inputData.length)
-//                .mapToDouble(exampleIndex -> {
-//                    IntStream.range(0, inputData[exampleIndex].length).forEach(i ->
-//                            inputNeurons
-//                                    .get(i)
-//                                    .forwardSignalReceived(
-//                                            null,
-//                                            inputData[exampleIndex][i])
-//                    );
-//                    return IntStream
-//                            .range(0, expectedResults[exampleIndex].length)
-//                            .mapToDouble(i ->
-//                                loss.error(
-//                                        outputNeurons
-//                                                .get(i)
-//                                                .getForwardResult(),
-//                                        expectedResults[exampleIndex][i])
-//                    ).sum();
-//        }).average().getAsDouble();
+        return IntStream
+                .range(0, inputData.length)
+                .mapToDouble(exampleIndex -> {
+                    IntStream.range(0, inputData[exampleIndex].length).forEach(i ->
+                            inputNeurons
+                                    .get(i)
+                                    .forwardSignalReceived(
+                                            null,
+                                            inputData[exampleIndex][i])
+                    );
+                    return IntStream
+                            .range(0, expectedResults[exampleIndex].length)
+                            .mapToDouble(i ->
+                                    loss.error(outputNeurons.get(i).getForwardResult()[0],
+                                        expectedResults[exampleIndex][i])
+                    ).sum();
+        }).average().getAsDouble();
     }
 }

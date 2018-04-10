@@ -23,9 +23,9 @@ public interface Neuron extends Serializable {
      *
      * @param from , Neuron that sends the signal.
      */
-    void forwardSignalReceived(Neuron from, Double... values);
+    void forwardSignalReceived(Neuron from, double... values);
 
-    void backwardSignalReceived(Double value);
+    void backwardSignalReceived(double... value);
 
     default void connect(Neuron neuron, Double weight) {
         this.addForwardConnection(neuron);

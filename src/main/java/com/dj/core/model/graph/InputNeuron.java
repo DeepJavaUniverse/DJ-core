@@ -18,12 +18,12 @@ public class InputNeuron implements Neuron {
     }
 
     @Override
-    public void forwardSignalReceived(final Neuron from, final Double... values) {
+    public void forwardSignalReceived(final Neuron from, final double... values) {
         connections.forEach(n -> n.forwardSignalReceived(this, values));
     }
 
     @Override
-    public void backwardSignalReceived(final Double value) {
+    public void backwardSignalReceived(final double... value) {
         // No-op
     }
 
