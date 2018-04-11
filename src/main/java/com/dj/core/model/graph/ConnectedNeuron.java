@@ -170,6 +170,24 @@ public class ConnectedNeuron implements Neuron {
 
         final var dzLearningRate = dz * context.getLearningRate();
         backwardConnections = backwardConnections.add(inputSignals.scalarMultiply(dzLearningRate));
+        if (context.getRegularizationRate() != 0.) {
+            backwardConnections.walkInColumnOrder(new RealMatrixChangingVisitor() {
+                @Override
+                public void start(final int i, final int i1, final int i2, final int i3, final int i4, final int i5) {
+
+                }
+
+                @Override
+                public double visit(final int i, final int i1, final double v) {
+                    return v - Math.pow(v, context.getRegularizationLevel()) * context.getRegularizationRate();
+                }
+
+                @Override
+                public double end() {
+                    return 0;
+                }
+            });
+        }
 
         bias.addAndGet(inputSignalsAverage * dz * context.getLearningRate());
         neuronIndexes
