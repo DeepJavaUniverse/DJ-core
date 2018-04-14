@@ -26,7 +26,7 @@ public class TwoLayersPerceptronTest {
     @Before
     public void setUp() {
         Random random = new Random();
-        double learningRate = 0.05;
+        double learningRate = 0.15;
         int batchSize = 4;
         inputFriend = new InputNeuron("friend");
         inputVodka = new InputNeuron("vodka");
@@ -85,19 +85,20 @@ public class TwoLayersPerceptronTest {
     private double trainIteration(double[] friendInput,
                                 double[] vodkaInput,
                                 double[] sunnyInput,
-                                double[] expectedResult) throws Exception {
+                                double[] expectedResult) {
         inputFriend.forwardSignalReceived(null, friendInput);
         inputVodka.forwardSignalReceived(null, vodkaInput);
         inputSunny.forwardSignalReceived(null, sunnyInput);
         var actualResult = outputNeuron.getForwardResult();
 
         var diff = 0.;
+        final var errorDyTensor = new double[expectedResult.length];
         for (var i = 0; i < expectedResult.length; i++) {
             var localDiff = expectedResult[i] - actualResult[i];
-            var errorDy = 2. * localDiff;
-            outputNeuron.backwardSignalReceived(errorDy);
-            diff +=localDiff;
+            diff += Math.pow(localDiff, 2);
+            errorDyTensor[i] = 2 * localDiff;
         }
+        outputNeuron.backwardSignalReceived(errorDyTensor);
 
         IntStream.range(0, friendInput.length).forEach(i -> {
             System.out.printf("For: F: %f V: %f S: %f Expected: %f Actual: %f\n",

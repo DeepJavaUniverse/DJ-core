@@ -165,7 +165,8 @@ public class ConnectedNeuron implements Neuron {
         // Calculate dz tensor (vector and its length equals to the batch size)
         // Multiply a derivative of each value of the {@link #forwardInputToActivationFunction}
         // to the appropriate error
-        var dz = new Array2DRowRealMatrix(forwardInputToActivationFunction.getRow(VECTOR_ROW_INDEX));
+        var dz = new Array2DRowRealMatrix(VECTOR_ROWS_COUNT, forwardInputToActivationFunction.getColumnDimension());
+        dz.setRow(VECTOR_ROW_INDEX, forwardInputToActivationFunction.getRow(VECTOR_ROW_INDEX));
         dz.walkInRowOrder(new SimpleRealMatrixChangingVisitor() {
             @Override
             public double visit(int row, int column, double value) {
@@ -174,8 +175,11 @@ public class ConnectedNeuron implements Neuron {
         });
 
         final var dzLearningRate = dz.scalarMultiply(context.getLearningRate());
-        IntStream.range(0, dzLearningRate.getColumnDimension()).forEach(i -> {
-            inputSignals = inputSignals.scalarMultiply(dzLearningRate.getEntry(VECTOR_ROW_INDEX, i));
+        inputSignals.walkInRowOrder(new SimpleRealMatrixChangingVisitor() {
+            @Override
+            public double visit(int row, int column, double value) {
+                return value * dzLearningRate.getEntry(VECTOR_ROW_INDEX, row);
+            }
         });
 
         // Calculate an average value of input signals of a particular neuron.
@@ -193,14 +197,14 @@ public class ConnectedNeuron implements Neuron {
             bias.addAndGet(inputSignalsAverage * dz.getEntry(VECTOR_ROW_INDEX, i) * context.getLearningRate());
         });
 
-        final var dzMultiplication = DoubleStream.of(dz.getRow(VECTOR_ROW_INDEX)).reduce(1, (a, b) -> a * b);
         neuronIndexes
                 .entrySet()
                 .stream()
-                .forEach(neuronIndex ->
-                        neuronIndex.getKey().backwardSignalReceived(
-                                backwardConnections
-                                        .getEntry(VECTOR_ROW_INDEX, neuronIndex.getValue()) * dzMultiplication));
+                .forEach(neuronIndex -> {
+                    final var currentWeight = backwardConnections.getEntry(VECTOR_ROW_INDEX, neuronIndex.getValue());
+                    final var errorsToSend = dz.scalarMultiply(currentWeight).getRow(VECTOR_ROW_INDEX);
+                    neuronIndex.getKey().backwardSignalReceived(errorsToSend);
+                });
     }
 
     @Override
