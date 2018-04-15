@@ -6,8 +6,11 @@ import java.util.stream.IntStream;
 public class QuadraticLoss implements Loss {
     
     @Override
-    public double error(final double actual, final double expected) {
-        return Math.pow(expected - actual, 2);
+    public double error(final double[] actual, final double[] expected) {
+        return IntStream
+                .range(0, actual.length)
+                .mapToDouble(i -> Math.pow(expected[i] - actual[i], 2))
+                .sum();
     }
 
     @Override

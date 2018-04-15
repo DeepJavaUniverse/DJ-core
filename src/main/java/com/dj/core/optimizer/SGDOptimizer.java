@@ -94,12 +94,9 @@ public class SGDOptimizer implements Optimizer {
         IntStream.range(0, outputNeurons.size()).forEach(
                 i -> {
                     final double[] actualValues = outputNeurons.get(i).getForwardResult();
-                    outputNeurons
-                            .get(i)
-                            .backwardSignalReceived(
-                                    loss
-                                            .derivative(actualValues,
-                                                        fetch1DSubArray(expectedResults, 0, expectedResults.length, i)));
+                    outputNeurons.get(i).backwardSignalReceived(
+                            loss.derivative(actualValues,
+                                            fetch1DSubArray(expectedResults, 0, expectedResults.length, i)));
                 }
         );
     }
@@ -120,14 +117,15 @@ public class SGDOptimizer implements Optimizer {
                                     .get(i)
                                     .forwardSignalReceived(
                                             null,
-                                            fetch1DSubArray(inputData, from, from + batchSize, i)
-                                    )
+                                            fetch1DSubArray(inputData, from, from + batchSize, i))
                     );
+
                     return IntStream
-                            .range(0, expectedResults[batchIndex].length)
+                            .range(0, outputNeurons.size())
                             .mapToDouble(i ->
-                                    loss.error(outputNeurons.get(i).getForwardResult()[0],
-                                            expectedResults[batchIndex][i])
+                                    loss.error(
+                                            outputNeurons.get(i).getForwardResult(),
+                                            fetch1DSubArray(expectedResults, from, from + batchSize, i))
                             ).sum();
                 }).average().getAsDouble();
     }
