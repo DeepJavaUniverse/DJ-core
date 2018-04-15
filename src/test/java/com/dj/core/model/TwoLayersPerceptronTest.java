@@ -64,22 +64,22 @@ public class TwoLayersPerceptronTest {
     @Test
     public void testTraining() throws Exception {
         var error = 0.;
-        for (int i = 0; i < 1400; i++) {
+        for (int i = 0; i < 600; i++) {
             error =
                     trainIteration(
-                            new double[] { 1., 1., 1., 0. },
+                            new double[] { 1., 0., 1., 0. },
                             new double[] { 1., 1., 0., 1. },
-                            new double[] { 1., 0., 1., 1. },
-                            new double[] { 1., 0., 1., 1. })
+                            new double[] { 1., 0., 0., 1. },
+                            new double[] { 1., 0., 0., 1. })
                     + trainIteration(
-                            new double[] { 0., 0., 1., 0. },
+                            new double[] { 0., 1., 1., 0. },
                             new double[] { 0., 1., 0., 0. },
-                            new double[] { 1., 0., 0., 0. },
-                            new double[] { 0., 0., 0., 0. });
+                            new double[] { 1., 0., 1., 0. },
+                            new double[] { 0., 0., 1., 0. });
             error = error / 8.;
             System.out.printf("ERROR: %s \n", error);
         }
-        assertTrue(Math.abs(error) < 0.15);
+        assertTrue(Math.abs(error) < 0.01);
     }
 
     private double trainIteration(double[] friendInput,
