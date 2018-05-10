@@ -128,7 +128,7 @@ public class ConnectedNeuron implements Neuron {
             }
 
             // Step #2
-            final var signalToSend = forwardInputToActivationFunction;
+            final var signalToSend = forwardInputToActivationFunction.copy();
             signalToSend.walkInRowOrder(new SimpleRealMatrixChangingVisitor() {
                 @Override
                 public double visit(int row, int column, double value) {

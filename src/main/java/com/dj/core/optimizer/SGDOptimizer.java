@@ -127,7 +127,7 @@ public class SGDOptimizer implements Optimizer {
                                             outputNeurons.get(i).getForwardResult(),
                                             fetch1DSubArray(expectedResults, from, from + batchSize, i))
                             ).sum();
-                }).average().getAsDouble();
+                }).average().getAsDouble() / batchSize;
     }
 
     private double[][] fetchBatch(final double[][] src, final int from, final int to) {
